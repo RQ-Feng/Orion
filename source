@@ -368,6 +368,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 		NotificationConfig.Sound = NotificationConfig.Sound or "rbxassetid://4590662766"
 		NotificationConfig.Time = NotificationConfig.Time or 5
+		NotificationConfig.useSound = NotificationConfig.useSound or true
 
 		local NotificationParent = SetProps(MakeElement("TFrame"), {
 			Size = UDim2.new(1, 0, 0, 0),
@@ -405,19 +406,21 @@ function OrionLib:MakeNotification(NotificationConfig)
 				TextWrapped = true
 			})
 		})
-		local Sound = Instance.new("Sound",NotificationParent)
-        Sound.Name = "Notification-Sound"       
-        Sound.SoundId = NotificationConfig.Sound
-        Sound.Volume = 5
-        Sound.Playing = true
-        task.spawn(function()
-            while Sound do
-                if Sound.Playing == false then
-                    Sound:Destroy()
-                end
-                task.wait(1)                
-            end            
-        end)
+		if NotificationConfig.useSound then
+			local Sound = Instance.new("Sound",NotificationParent)
+			Sound.Name = "Notification-Sound"       
+			Sound.SoundId = NotificationConfig.Sound
+			Sound.Volume = 5
+			Sound.Playing = true
+			task.spawn(function()
+				while Sound do
+					if Sound.Playing == false then
+						Sound:Destroy()
+					end
+					task.wait(1)                
+				end            
+			end)
+		end
 
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
 
