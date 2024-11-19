@@ -389,11 +389,6 @@ function OrionLib:MakeNotification(NotificationConfig)
 				ImageColor3 = Color3.fromRGB(240, 240, 240),
 				Name = "Icon"
 			}),
-			SetProps(MakeElement("Sound", NotificationConfig.Sound), {
-				Volume = "5",
-				Name = "Sound",
-				Playing = true
-			}),
 			SetProps(MakeElement("Label", NotificationConfig.Name, 15), {
 				Size = UDim2.new(1, -30, 0, 20),
 				Position = UDim2.new(0, 30, 0, 0),
@@ -410,7 +405,11 @@ function OrionLib:MakeNotification(NotificationConfig)
 				TextWrapped = true
 			})
 		})
-        Sound:Play()
+		local Sound = Instance.new("Sound",NotificationParent)
+        Sound.Name = "Notification-Sound"       
+        Sound.SoundId = NotificationConfig.Sound
+        Sound.Volume = 5
+        Sound.Playing = true
         task.spawn(function()
             while Sound do
                 if Sound.Playing == false then
