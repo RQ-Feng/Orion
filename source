@@ -651,10 +651,10 @@ function OrionLib:MakeWindow(WindowConfig)
 	AddConnection(UserInputService.InputBegan, function(Input)
 		if Input.KeyCode == Enum.KeyCode.RightShift then
 		 	if UIHidden == false then
-				MainWindow.Visible = true
+				MainWindow.Visible = false
 				UIHidden = true
 			else
-				MainWindow.Visible = false
+				MainWindow.Visible = true
 				UIHidden = false
 			end
 		end
