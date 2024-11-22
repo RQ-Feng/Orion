@@ -3,7 +3,7 @@ This documentation is for the stable release of Orion Library.
 
 ## Booting the Library
 ```lua
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/C-Feng-dev/Orion/refs/heads/main/main.lua'))()
 ```
 
 
@@ -24,8 +24,6 @@ Icon = <string> - URL to the image you want displayed on the window.
 CloseCallback = <function> - Function to execute when the window is closed.
 ]]
 ```
-
-
 
 ## Creating a Tab
 ```lua

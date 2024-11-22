@@ -27,12 +27,7 @@ local OrionLib = {
 
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
-if syn then
-	syn.protect_gui(Orion)
-	Orion.Parent = game.CoreGui
-else
-	Orion.Parent = gethui() or game.CoreGui
-end
+Orion.Parent = gethui() or game.CoreGui
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
@@ -203,7 +198,7 @@ local function LoadCfg(Config)
 				end    
 			end)
 		else
-			warn("Orion Library Config Loader - Could not find ", a ,b)
+			warn("Orion Lib配置文件 - 无法找到", a ,b)
 		end
 	end)
 end
@@ -363,8 +358,8 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
 
 function OrionLib:MakeNotification(NotificationConfig)
 	spawn(function()
-		NotificationConfig.Name = NotificationConfig.Name or "Notification"
-		NotificationConfig.Content = NotificationConfig.Content or "Test"
+		NotificationConfig.Name = NotificationConfig.Name or "Title"
+		NotificationConfig.Content = NotificationConfig.Content or "Content"
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 		NotificationConfig.Sound = NotificationConfig.Sound or "rbxassetid://4590662766"
 		NotificationConfig.Time = NotificationConfig.Time or 5
@@ -421,9 +416,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				end            
 			end)
 		end
-
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
-
 		wait(NotificationConfig.Time - 0.88)
 		TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
@@ -432,7 +425,6 @@ function OrionLib:MakeNotification(NotificationConfig)
 		TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
 		TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
 		wait(0.05)
-
 		NotificationFrame:TweenPosition(UDim2.new(1, 20, 0, 0),'In','Quint',0.8,true)
 		wait(1.35)
 		NotificationParent:Destroy()
@@ -653,6 +645,12 @@ function OrionLib:MakeWindow(WindowConfig)
 		 	if UIHidden == false then
 				MainWindow.Visible = false
 				UIHidden = true
+				OrionLib:MakeNotification({
+					Name = "界面隐藏",
+					Content = "点击右Shift以重新打开界面",
+					Time = 5
+				})
+				WindowConfig.CloseCallback()
 			else
 				MainWindow.Visible = true
 				UIHidden = false
