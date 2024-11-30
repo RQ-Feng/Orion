@@ -4,7 +4,6 @@
 	local LocalPlayer = game:GetService("Players").LocalPlayer
 	local Mouse = LocalPlayer:GetMouse()
 	local HttpService = game:GetService("HttpService")
-
 	local OrionLib = {
 		Elements = {},
 		ThemeObjects = {},
@@ -24,18 +23,20 @@
 		Folder = nil,
 		SaveCfg = false
 	}
-
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "Orion"
 	Orion.Parent = gethui() or game.CoreGui
-
+	--local设置
 	if gethui then
+		
+	end
+
+	function DestroyGUI()
 		for _, Interface in ipairs(gethui():GetChildren()) do
 			if Interface.Name == Orion.Name and Interface ~= Orion then
 				Interface:Destroy()
 			end
 		end
-	else
 		for _, Interface in ipairs(game.CoreGui:GetChildren()) do
 			if Interface.Name == Orion.Name and Interface ~= Orion then
 				Interface:Destroy()
@@ -65,7 +66,6 @@
 		while (OrionLib:IsRunning()) do
 			wait()
 		end
-
 		for _, Connection in next, OrionLib.Connections do
 			Connection:Disconnect()
 		end
@@ -438,7 +438,7 @@
 					LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
 					OrionLib:MakeNotification({
 						Name = "游戏配置",
-						Content = "自动载入" .. game.GameId .. "游戏配置.",
+						Content = "自动载入游戏ID为'" .. game.GameId .. "'的游戏配置.",
 						Time = 5
 					})
 				end
