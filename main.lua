@@ -26,17 +26,14 @@
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "Orion"
 	Orion.Parent = gethui() or game.CoreGui
-	--local设置
-	if gethui then
-		
-	end
 
-	function DestroyGUI()
+	if gethui then
 		for _, Interface in ipairs(gethui():GetChildren()) do
 			if Interface.Name == Orion.Name and Interface ~= Orion then
 				Interface:Destroy()
 			end
 		end
+	else
 		for _, Interface in ipairs(game.CoreGui:GetChildren()) do
 			if Interface.Name == Orion.Name and Interface ~= Orion then
 				Interface:Destroy()
@@ -50,16 +47,6 @@
 		else
 			return Orion.Parent == game:GetService("CoreGui")
 		end
-
-	end
-
-	local function AddConnection(Signal, Function)
-		if (not OrionLib:IsRunning()) then
-			return
-		end
-		local SignalConnect = Signal:Connect(Function)
-		table.insert(OrionLib.Connections, SignalConnect)
-		return SignalConnect
 	end
 
 	task.spawn(function()
@@ -70,6 +57,15 @@
 			Connection:Disconnect()
 		end
 	end)
+
+	local function AddConnection(Signal, Function)
+		if (not OrionLib:IsRunning()) then
+			return
+		end
+		local SignalConnect = Signal:Connect(Function)
+		table.insert(OrionLib.Connections, SignalConnect)
+		return SignalConnect
+	end
 
 	local function AddDraggingFunctionality(DragPoint, Main)
 		pcall(function()
@@ -361,9 +357,9 @@
 			NotificationConfig.Name = NotificationConfig.Name or "Title"
 			NotificationConfig.Content = NotificationConfig.Content or "Content"
 			NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
-			NotificationConfig.Sound = NotificationConfig.Sound or "rbxassetid://4590662766"
+			NotificationConfig.SoundId = NotificationConfig.SoundId or "rbxassetid://4590662766"
 			NotificationConfig.Time = NotificationConfig.Time or 5
-			NotificationConfig.useSound = NotificationConfig.useSound or true
+			NotificationConfig.Sound = NotificationConfig.Sound or true
 
 			local NotificationParent = SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(1, 0, 0, 0),
@@ -401,20 +397,12 @@
 					TextWrapped = true
 				})
 			})
-			if NotificationConfig.useSound then
+			if NotificationConfig.Sound then
 				local Sound = Instance.new("Sound",NotificationParent)
 				Sound.Name = "Notification-Sound"       
-				Sound.SoundId = NotificationConfig.Sound
+				Sound.SoundId = NotificationConfig.SoundId
 				Sound.Volume = 5
 				Sound.Playing = true
-				task.spawn(function()
-					while Sound do
-						if Sound.Playing == false then
-							Sound:Destroy()
-						end
-						task.wait(1)                
-					end            
-				end)
 			end
 			TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
 			wait(NotificationConfig.Time - 0.88)
@@ -1706,5 +1694,4 @@
 	function OrionLib:Destroy()
 		Orion:Destroy()
 	end
-
-	return OrionLib
+return OrionLib
