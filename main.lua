@@ -4,7 +4,7 @@
 	local LocalPlayer = game:GetService("Players").LocalPlayer
 	local Mouse = LocalPlayer:GetMouse()
 	local HttpService = game:GetService("HttpService")
-	local OrionLib = {
+	local OrionLib = {--OrionLib
 		Elements = {},
 		ThemeObjects = {},
 		Connections = {},
@@ -27,7 +27,7 @@
 	Orion.Name = "Orion"
 	Orion.Parent = gethui() or game.CoreGui
 
-	if gethui then
+	if gethui then--删除之前加载过的OrionLib
 		for _, Interface in ipairs(gethui():GetChildren()) do
 			if Interface.Name == Orion.Name and Interface ~= Orion then
 				Interface:Destroy()
@@ -41,7 +41,7 @@
 		end
 	end
 
-	function OrionLib:IsRunning()
+	function OrionLib:IsRunning()--IsRunning函数
 		if gethui then
 			return Orion.Parent == gethui()
 		else
@@ -49,7 +49,7 @@
 		end
 	end
 
-	task.spawn(function()
+	task.spawn(function()--停止运行后的断开事件连接
 		while (OrionLib:IsRunning()) do
 			wait()
 		end
@@ -58,7 +58,7 @@
 		end
 	end)
 
-	local function AddConnection(Signal, Function)
+	local function AddConnection(Signal,Function)--Orion-添加事件连接
 		if (not OrionLib:IsRunning()) then
 			return
 		end
