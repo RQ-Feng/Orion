@@ -43,25 +43,19 @@
 
 	function OrionLib:IsRunning()--IsRunning函数
 		if gethui then
-			return Orion.Parent == gethui()
+			return compareinstances and compareinstances(Orion.Parent,gethui()) or Orion.Parent == gethui()
 		else
-			return Orion.Parent == game:GetService("CoreGui")
+			return compareinstances and compareinstances(Orion.Parent,game:GetService("CoreGui")) or Orion.Parent == game:GetService("CoreGui")
 		end
 	end
 
 	task.spawn(function()--停止运行后的断开事件连接
-		while (OrionLib:IsRunning()) do
-			wait()
-		end
-		for _, Connection in next, OrionLib.Connections do
-			Connection:Disconnect()
-		end
+		while (OrionLib:IsRunning()) do wait() end
+		for _, Connection in next, OrionLib.Connections do Connection:Disconnect() end
 	end)
 
 	local function AddConnection(Signal,Function)--Orion-添加事件连接
-		if (not OrionLib:IsRunning()) then
-			return
-		end
+		if (not OrionLib:IsRunning()) then return end
 		local SignalConnect = Signal:Connect(Function)
 		table.insert(OrionLib.Connections, SignalConnect)
 		return SignalConnect
