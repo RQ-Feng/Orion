@@ -23,38 +23,23 @@
 		Folder = nil,
 		SaveCfg = false
 	}
-	local Orion = Instance.new("ScreenGui")
-	Orion.Name = "Orion"
-	Orion.Parent = gethui() or game.CoreGui
+	local OrionUI = Instance.new("ScreenGui")
+	OrionUI.Name = "OrionUI"
+	OrionUI.Parent = gethui() or game.CoreGui
 
-	if gethui then--删除之前加载过的OrionLib
-		for _, Interface in ipairs(gethui():GetChildren()) do
-			if Interface.Name == Orion.Name and Interface ~= Orion then
-				Interface:Destroy()
-			end
-		end
-	else
-		for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-			if Interface.Name == Orion.Name and Interface ~= Orion then
-				Interface:Destroy()
-			end
-		end
+	--删除之前加载过的OrionLib
+	for _, Interface in ipairs(gethui and gethui():GetChildren() or game.CoreGui:GetChildren()) do
+		if Interface.Name == 'OrionUI' and Interface ~= OrionUI then Interface:Destroy()	end
 	end
 
-	function OrionLib:IsRunning()--IsRunning函数
-		if gethui then
-			return compareinstances and compareinstances(Orion.Parent,gethui()) or Orion.Parent == gethui()
-		else
-			return compareinstances and compareinstances(Orion.Parent,game:GetService("CoreGui")) or Orion.Parent == game:GetService("CoreGui")
-		end
-	end
+	function OrionLib:IsRunning() return OrionUI.Parent ~= nil and true or false end--IsRunning函数
 
 	task.spawn(function()--停止运行后的断开事件连接
 		while (OrionLib:IsRunning()) do wait() end
 		for _, Connection in next, OrionLib.Connections do Connection:Disconnect() end
 	end)
 
-	local function AddConnection(Signal,Function)--Orion-添加事件连接
+	local function AddConnection(Signal,Function)--OrionUI-添加事件连接
 		if (not OrionLib:IsRunning()) then return end
 		local SignalConnect = Signal:Connect(Function)
 		table.insert(OrionLib.Connections, SignalConnect)
@@ -343,7 +328,7 @@
 		Position = UDim2.new(1, -25, 1, -25),
 		Size = UDim2.new(0, 300, 1, -25),
 		AnchorPoint = Vector2.new(1, 1),
-		Parent = Orion
+		Parent = OrionUI
 	})
 
 	function OrionLib:MakeNotification(NotificationConfig)
@@ -353,7 +338,6 @@
 			NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 			NotificationConfig.SoundId = NotificationConfig.SoundId or "rbxassetid://4590662766"
 			NotificationConfig.Time = NotificationConfig.Time or 5
-			NotificationConfig.Sound = NotificationConfig.Sound or true
 
 			local NotificationParent = SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(1, 0, 0, 0),
@@ -391,13 +375,13 @@
 					TextWrapped = true
 				})
 			})
-			if NotificationConfig.Sound then
-				local Sound = Instance.new("Sound",NotificationParent)
-				Sound.Name = "Notification-Sound"       
-				Sound.SoundId = NotificationConfig.SoundId
-				Sound.Volume = 5
-				Sound.Playing = true
-			end
+
+			local Sound = Instance.new("Sound",NotificationParent)
+			Sound.Name = "Notification-Sound"       
+			Sound.SoundId = NotificationConfig.SoundId
+			Sound.Volume = 5
+			Sound.Playing = true
+
 			TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
 			wait(NotificationConfig.Time - 0.88)
 			TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
@@ -439,9 +423,7 @@
 		WindowConfig.ConfigFolder = WindowConfig.ConfigFolder or WindowConfig.Name
 		WindowConfig.SaveConfig = WindowConfig.SaveConfig or false
 		WindowConfig.HidePremium = WindowConfig.HidePremium or false
-		if WindowConfig.IntroEnabled == nil then
-			WindowConfig.IntroEnabled = true
-		end
+		if WindowConfig.IntroEnabled == nil then WindowConfig.IntroEnabled = true end
 		WindowConfig.IntroText = WindowConfig.IntroText or "Orion Library"
 		WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
 		WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
@@ -565,7 +547,7 @@
 		}), "Stroke")
 
 		local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
-			Parent = Orion,
+			Parent = OrionUI,
 			Position = UDim2.new(0.5, -307, 0.5, -172),
 			Size = UDim2.new(0, 615, 0, 344),
 			ClipsDescendants = true
@@ -663,7 +645,7 @@
 		local function LoadSequence()
 			MainWindow.Visible = false
 			local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
-				Parent = Orion,
+				Parent = OrionUI,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.4, 0),
 				Size = UDim2.new(0, 28, 0, 28),
@@ -672,7 +654,7 @@
 			})
 
 			local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 14), {
-				Parent = Orion,
+				Parent = OrionUI,
 				Size = UDim2.new(1, 0, 1, 0),
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 19, 0.5, 0),
@@ -1686,6 +1668,6 @@
 	end   
 
 	function OrionLib:Destroy()
-		Orion:Destroy()
+		OrionUI:Destroy()
 	end
 return OrionLib

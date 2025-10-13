@@ -3,7 +3,7 @@ This documentation is for the stable release of Orion Library.
 
 ## Booting the Library
 ```lua
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/C-Feng-dev/Orion/refs/heads/main/main.lua'))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))()
 ```
 
 
@@ -263,8 +263,8 @@ The above boolean value "true" is whether or not the current buttons will be del
 Dropdown:Set("dropdown option")
 ```
 
-# Finishing your script (REQUIRED)
-The below function needs to be added at the end of your code.
+# Finishing your script(load config)
+The below function needs to be added at the end of your code to load config.
 ```lua
 OrionLib:Init()
 ```
