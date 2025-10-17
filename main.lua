@@ -398,13 +398,14 @@ if IsOnMobile then-- Mobile
         Size = UDim2.new(0.1,0,0.1,0),
         AnchorPoint = Vector2.new(1,0),
         ZIndex = 255,
+        Visible = false,
         Parent = OrionUI
     })
 
     AddConnection(MobileButton.TouchTap,function()
-        if OrionUI.MainWindow then
-            OrionUI.MainWindow.Visible = not OrionUI.MainWindow.Visible
-        end
+        if not OrionUI.MainWindow then return end
+        OrionUI.MainWindow.Visible = not OrionUI.MainWindow.Visible
+        if OrionUI.MainWindow.Visible then MobileButton.Visible = false end
     end)
 end
 
@@ -426,7 +427,7 @@ end
 function OrionLib:MakeWindow(WindowConfig)
     local FirstTab = true
     local Minimized = false
-    local Loaded = false
+    local _Loaded = false
     local UIHidden = false
 
     WindowConfig = WindowConfig or {}
@@ -582,7 +583,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
     AddDraggingFunctionality(DragPoint, MainWindow)
 
-    AddConnection(CloseBtn.MouseButton1Down, function()
+    AddConnection(CloseBtn.MouseButton1Down, function()--关闭按钮
         MainWindow.Visible = false
         UIHidden = true
         OrionLib:MakeNotification({
@@ -594,23 +595,18 @@ function OrionLib:MakeWindow(WindowConfig)
         WindowConfig.CloseCallback()
     end)
 
-    AddConnection(UserInputService.InputBegan, function(Input)
+    AddConnection(UserInputService.InputBegan, function(Input)--右Shift检测
         if Input.KeyCode == Enum.KeyCode.RightShift then
             if UIHidden == false then
                 MainWindow.Visible = false
                 UIHidden = true
                 OrionLib:MakeNotification({
                     Name = "界面隐藏",
-                    Content = (IsOnMobile and '点击图标' or '按右Shift') .. "以重新打开界面",
+                    Content = "再次按右Shift以重新打开界面",
                     Time = 5
                 })
-                if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = true end
                 WindowConfig.CloseCallback()
-            else 
-                MainWindow.Visible = true 
-                UIHidden = false 
-                if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = false end
-            end
+            else MainWindow.Visible = true; UIHidden = false end
         end
     end)
 
