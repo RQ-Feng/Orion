@@ -395,7 +395,7 @@ if IsOnMobile then-- Mobile
         Active = true,
         Position = UDim2.new(1,-10,0,10),
         BackgroundColor3 = Color3.fromRGB(25,25,25),
-        Size = UDim2.new(0.1,0,0.1,0),
+        Size = UDim2.new(0.05,30,0.05,30),
         AnchorPoint = Vector2.new(1,0),
         ZIndex = 255,
         Visible = false,
