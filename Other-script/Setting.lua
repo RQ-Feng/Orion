@@ -1,4 +1,5 @@
 --Need OrionLib
+repeat task.wait() until OrionLib and OrionLib.MainWindows
 for _,MainWindow in pairs(OrionLib.MainWindows) do
     Setting = MainWindow:MakeTab({
         Name = "UI设置",
