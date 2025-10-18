@@ -10,11 +10,10 @@ local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-F
 
 ## Creating a Window
 ```lua
-local Window = OrionLib:MakeWindow({Name = "Title of the library", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({Name = "Title of the library", SaveConfig = true, ConfigFolder = "OrionTest"})
 
 --[[
 Name = <string> - The name of the UI.
-HidePremium = <bool> - Whether or not the user details shows Premium status or not.
 SaveConfig = <bool> - Toggles the config saving in the UI.
 ConfigFolder = <string> - The name of the folder where the configs are saved.
 IntroEnabled = <bool> - Whether or not to show the intro animation.
@@ -265,6 +264,12 @@ Dropdown:Set("dropdown option")
 The below function needs to be added at the end of your code to load config.
 ```lua
 OrionLib:Init()
+```
+
+# Setting UI theme
+There are currently two themes available: "Dark" and "Light"
+```lua
+OrionLib:SetTheme()
 ```
 
 ### How flags work.
