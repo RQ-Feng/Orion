@@ -29,14 +29,12 @@ CloseCallback = <function> - Function to execute when the window is closed.
 ```lua
 local Tab = Window:MakeTab({
 	Name = "Tab 1",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
+	Icon = "rbxassetid://4483345998"
 })
 
 --[[
 Name = <string> - The name of the tab.
 Icon = <string> - The icon of the tab.
-PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
 ]]
 ```
 ## Creating a Section

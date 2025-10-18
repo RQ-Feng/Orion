@@ -14,8 +14,7 @@ OrionLib:MakeNotification({
 --Tab
 local Tab = Window:MakeTab({
 	Name = "Tab 1",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
+	Icon = "rbxassetid://4483345998"
 })
 --Section
 local Section = Tab:AddSection({
@@ -169,7 +168,6 @@ Tab:AddButton({
 local Tab2 = Window:MakeTab({
 	Name = "destroy",
 	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
 })
 Tab2:AddButton({
 	Name = "Destroy the tab",
