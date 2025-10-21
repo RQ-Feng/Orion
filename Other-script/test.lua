@@ -1,4 +1,4 @@
-if not OrionLib then local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))() end --lib
+if not OrionLib then OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))() end --lib
 Window = OrionLib:MakeWindow({--Main Window
     Name = "Title of the library",
     HidePremium = false,
