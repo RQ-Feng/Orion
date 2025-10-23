@@ -6,7 +6,7 @@ Lib loader:
 ```lua
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua"))()
 ```
-If you want to use ui setting or else,you need to set Orion as a global variable:
+If you want to use ui setting or something else,you need to set Orion as a global variable:
 ```lua
 OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua"))()
 ```
