@@ -1,8 +1,11 @@
 # Orion Lib
-A maintained(maybe idk) fork of OrionLib.
+A maintained(maybe idk) fork of OrionLib.<br />
 Maybe has some problem bc my luau isn't very good
 
-Lib loader:
+> [!IMPORTANT]  
+> Multi windows are not recommended because it's not support and so bugged.
+
+# Lib loader:
 ```lua
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua"))()
 ```
