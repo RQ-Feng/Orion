@@ -995,9 +995,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 
-				if ToggleConfig.Flag then
-					OrionLib.Flags[ToggleConfig.Flag] = Toggle
-				end
+				if ToggleConfig.Flag then OrionLib.Flags[ToggleConfig.Flag] = Toggle end
 				return Toggle
 			end
 			function ElementFunction:AddSlider(SliderConfig)
