@@ -390,6 +390,19 @@ function OrionLib:MakeNotification(NotificationConfig)
 	end)
 end
 
+local function CatchError(Config,Value)
+	local suc,err = pcall(function() Config.Callback(Value) end)
+	if not suc then 
+		warn('"'..Config.Name..'"','got a error:' .. err)
+		OrionLib:MakeNotification({
+			Name = "Error notity",
+			Content = "Catch a error - Please see the console to know what error it is.",
+			Image = "rbxassetid://4483345998",
+			Time = 5
+		})
+	end
+end
+
 if IsOnMobile then-- Mobile 
 	local MobileButton = SetProps(SetChildren(MakeElement("Frame"),
 		{MakeElement("Constraint"),MakeElement("Corner",1,0),
@@ -870,9 +883,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3,
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)
 						}):Play()
-					spawn(function()
-						ButtonConfig.Callback()
-					end)
+					spawn(function() CatchError(ButtonConfig) end)
 				end)
 
 				AddConnection(Click.MouseButton1Down, function()
@@ -951,7 +962,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							ImageTransparency = Toggle.Value and 0 or 1,
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
-					ToggleConfig.Callback(Toggle.Value)
+					CatchError(ToggleConfig,Toggle.Value)
 				end
 
 				Toggle:Set(Toggle.Value)
@@ -1084,7 +1095,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 					SliderBar.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
-					SliderConfig.Callback(self.Value)
+					CatchError(SliderConfig,self.Value)
 				end
 
 				Slider:Set(Slider.Value)
@@ -1242,7 +1253,9 @@ function OrionLib:MakeWindow(WindowConfig)
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							TextTransparency = 0
 						}):Play()
-					return DropdownConfig.Callback(Dropdown.Value)
+					-----Testing
+					--return DropdownConfig.Callback(Dropdown.Value)
+					return CatchError(DropdownConfig,Dropdown.Value)
 				end
 
 				AddConnection(Click.MouseButton1Click, function()
@@ -1338,8 +1351,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
 						if BindConfig.Hold then
 							Holding = true
-							BindConfig.Callback(Holding)
-						else BindConfig.Callback() end
+							CatchError(BindConfig,Holding)
+						else CatchError(BindConfig) end
 					elseif Bind.Binding then
 						local Key
 						pcall(function() 
@@ -1356,7 +1369,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
 						if BindConfig.Hold and Holding then
 							Holding = false
-							BindConfig.Callback(Holding)
+							CatchError(BindConfig,Holding)
 						end
 					end
 				end)
@@ -1462,7 +1475,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				AddConnection(TextboxActual.FocusLost, function()
-					TextboxConfig.Callback(TextboxActual.Text)
+					CatchError(TextboxConfig,TextboxActual.Text)
 					if TextboxConfig.TextDisappear then
 						TextboxActual.Text = ""
 					end
@@ -1628,7 +1641,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					ColorpickerBox.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
 					Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
 					Colorpicker:Set(ColorpickerBox.BackgroundColor3)
-					ColorpickerConfig.Callback(ColorpickerBox.BackgroundColor3)
+					CatchError(ColorpickerConfig,ColorpickerBox.BackgroundColor3)
 					SaveCfg(game.GameId)
 				end
 
@@ -1696,7 +1709,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Colorpicker:Set(Value)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					ColorpickerConfig.Callback(Colorpicker.Value)
+					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
 				Colorpicker:Set(Colorpicker.Value)
