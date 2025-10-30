@@ -59,9 +59,11 @@ local function AddConnection(Signal, Function) -- OrionUI-添加事件连接
 end
 
 local function AddDraggingFunctionality(DragPoint, Main)
-	pcall(function()
+	--Checking mobile error
+	local suc,err = pcall(function()
 		local Dragging, DragInput, MousePos, FramePos = false
 		DragPoint.InputBegan:Connect(function(Input)
+			print('InputBegan',Input.UserInputType)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 				Dragging = true
 				MousePos = Input.Position
@@ -75,11 +77,13 @@ local function AddDraggingFunctionality(DragPoint, Main)
 			end
 		end)
 		DragPoint.InputChanged:Connect(function(Input)
+			print('InputChanged',Input.UserInputType)
 			if Input.UserInputType == Enum.UserInputType.MouseMovement then
 				DragInput = Input
 			end
 		end)
 		UserInputService.InputChanged:Connect(function(Input)
+			print('UserInputService.InputChanged',Input.UserInputType)
 			if Input == DragInput and Dragging then
 				local Delta = Input.Position - MousePos
 				TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
@@ -89,6 +93,7 @@ local function AddDraggingFunctionality(DragPoint, Main)
 			end
 		end)
 	end)
+	if not suc then warn('Test:AddDraggingFunctionality error:'..err) end
 end
 
 local function Create(Name, Properties, Children)---Instance Creator
@@ -563,21 +568,14 @@ function OrionLib:MakeWindow(WindowConfig)
 		Position = UDim2.new(0, 0, 1, -1)
 	}), "Stroke")
 
-	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0,
+	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0,--MainWindow初始化
 		10), {
 			Name = 'MainWindow',
 			Parent = OrionUI,
 			Position = UDim2.new(0.5, -307, 0.5, -172),
 			Size = UDim2.new(0, 615, 0, 344),
 			ClipsDescendants = true
-		}), { -- SetProps(MakeElement("Image", "rbxassetid://3523728077"), {--高光背景图
-			--	AnchorPoint = Vector2.new(0.5, 0.5),
-			--	Position = UDim2.new(0.5, 0, 0.5, 0),
-			--	Size = UDim2.new(1, 80, 1, 320),
-			--	ImageColor3 = Color3.fromRGB(33, 33, 33),
-			--	ImageTransparency = 0.7
-			-- }),
-			SetChildren(SetProps(MakeElement("TFrame"), {
+		}), {SetChildren(SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(1, 0, 0, 50),
 				Name = "TopBar"
 			}), {WindowName, WindowTopBarLine,
@@ -652,7 +650,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		Minimized = not Minimized
 	end)
 
-	local function LoadSequence()--Intro
+	local function LoadSequence()--Intro function
 		MainWindow.Visible = false
 		local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
 			Parent = OrionUI,
@@ -694,9 +692,9 @@ function OrionLib:MakeWindow(WindowConfig)
 		LoadSequenceText:Destroy()
 	end
 
-	if WindowConfig.IntroEnabled then LoadSequence() end--Intro End
+	if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
-	if not OrionLib.SaveCfg then OrionLib:MakeNotification({
+	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notity
 		Name = "配置文件",
 		Content = "配置文件功能未启用,无法保存或载入配置.",
 		Time = 5
