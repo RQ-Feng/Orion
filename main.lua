@@ -98,9 +98,9 @@ end
 local function GetLocalizationString(originalString,...)
 	if not type(originalString) == 'string' then return end
 	if not Localization then return originalString end
-	local formatCount = 0;for _ in string.gmatch(str, string.gsub(substring, "([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")) do formatCount = formatCount + 1 end
-	if #{...} ~= formatCount then return end
-	return Localization and Localization[OrionUI.Language][originalString]
+    local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
+	if #{...} ~= count then return originalString end
+	return Localization[OrionUI.Language][originalString]:format(...)
 end
 
 local function Create(Name, Properties, Children)---Instance Creator
@@ -407,8 +407,8 @@ local function CatchError(Config,Value)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
 		OrionLib:MakeNotification({
-			Name = "Error notity",
-			Content = "Catch a error - Please see the console to know what error it is.",
+			Name = GetLocalizationString('OrionLib.CatchError.Name'),
+			Content = GetLocalizationString('OrionLib.CatchError.Content'),
 			Image = "rbxassetid://4483345998",
 			Time = 5
 		})
@@ -449,8 +449,8 @@ function OrionLib:Init()
 		if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
 			LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
 			OrionLib:MakeNotification({
-				Name = "游戏配置",
-				Content = "已载入游戏ID为'" .. game.GameId .. "'的游戏配置.",
+				Name = GetLocalizationString('OrionLib.Configuration.Name'),
+				Content = GetLocalizationString('OrionLib.Configuration.Success.Content'),
 				Time = 5
 			})
 		end
@@ -609,8 +609,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		MainWindow.Visible = false
 		UIHidden = true
 		OrionLib:MakeNotification({
-			Name = "界面隐藏",
-			Content = (IsOnMobile and '点击图标' or '按右Shift') .. "以重新打开界面",
+			Name = GetLocalizationString('OrionLib.InterfaceHidden.Name'),
+			Content = GetLocalizationString(IsOnMobile and 'OrionLib.InterfaceHidden.Content.Mobile' or 'OrionLib.InterfaceHidden.Content.Computer'),
 			Time = 5
 		})
 		if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = true end
@@ -623,8 +623,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				MainWindow.Visible = false
 				UIHidden = true
 				OrionLib:MakeNotification({
-					Name = "界面隐藏",
-					Content = "再次按右Shift以重新打开界面",
+					Name = GetLocalizationString('OrionLib.InterfaceHidden.Name'),
+					Content = GetLocalizationString('OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'),
 					Time = 5
 				})
 				WindowConfig.CloseCallback()
@@ -702,8 +702,8 @@ function OrionLib:MakeWindow(WindowConfig)
 	if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
 	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notity
-		Name = "配置文件",
-		Content = "配置文件功能未启用,无法保存或载入配置.",
+		Name = GetLocalizationString('OrionLib.Configuration.Name'),
+		Content = GetLocalizationString('OrionLib.Configuration.NotSaveCfg.Content'),
 		Time = 5
 		}) end
 
