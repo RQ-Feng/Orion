@@ -1,6 +1,6 @@
 # Orion Lib
 A maintained(maybe idk) fork of OrionLib.<br />
-Maybe has some problem bc my luau isn't very good
+Maybe has some problem because my luau isn't very good
 
 > [!IMPORTANT]  
 > Multi windows are not recommended because it's not support and so bugged.
