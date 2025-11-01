@@ -13,8 +13,8 @@ return {
     ['en-us'] = {
         ['OrionLib.InterfaceHidden.Name'] = 'Interface Hidden',
         ['OrionLib.InterfaceHidden.Content.Mobile'] = 'Click the icon to reopen the interface',
-        ['OrionLib.InterfaceHidden.Content.Computer'] = 'Tap rightShift to reopen the interface',
-        ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap rightShift again to reopen the interface',
+        ['OrionLib.InterfaceHidden.Content.Computer'] = 'Tap RightShift to reopen the interface',
+        ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap RightShift again to reopen the interface',
         ['OrionLib.CatchError.Name'] = 'Error notity',
         ['OrionLib.CatchError.Content'] = 'Catch a error - Please see the console to know what error it is.',
         ['OrionLib.Configuration.Name'] = 'Configuration',
