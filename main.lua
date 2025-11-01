@@ -100,7 +100,7 @@ local function GetLocalizationString(originalString,...)
 	if not Localization then return originalString end
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
 	if #{...} ~= count then return originalString end
-	return Localization[OrionUI.Language][originalString]:format(...)
+	return Localization[OrionLib.Language][originalString]:format(...)
 end
 
 local function Create(Name, Properties, Children)---Instance Creator
@@ -330,7 +330,7 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {SetProps
 })
 
 function OrionLib:MakeNotification(NotificationConfig)
-	spawn(function()
+	task.spawn(function()
 		NotificationConfig = NotificationConfig or {}
 		NotificationConfig.Name = NotificationConfig.Name or "Title"
 		NotificationConfig.Content = NotificationConfig.Content or "Content"
@@ -456,6 +456,13 @@ function OrionLib:Init()
 		end
 	end)
 end
+
+function OrionLib:SetLanguage(language)
+	if type(language) ~= 'string' then return end
+	if not Localization[language] then warn('OrionLib - Unsupport language;',language) return end
+	OrionLib.Language = language
+end
+
 --MainUI
 function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
