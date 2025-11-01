@@ -24,6 +24,12 @@ CloseCallback = <function> - Function to execute when the window is closed.
 ]]
 ```
 
+## Setting a support language
+```lua
+OrionLib:SetLanguage(language)
+```
+Support languages for ui now:zh-cn,en-us
+
 ## Creating a Tab
 ```lua
 local Tab = Window:MakeTab({
