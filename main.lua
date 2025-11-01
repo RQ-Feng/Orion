@@ -6,11 +6,16 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local UIParent = gethui and gethui() or game.CoreGui or LocalPlayer.PlayerGui
 local IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+local InputKeys = {--输入键
+	['Input'] = {Enum.UserInputType.MouseButton1,Enum.UserInputType.Touch},
+	['Drag'] = {Enum.UserInputType.MouseMovement,Enum.UserInputType.Touch}
+}
 local OrionLib = { -- OrionLib
 	Elements = {},
 	ThemeObjects = {},
 	Connections = {},
 	Flags = {},
+	MainWindows = {},
 	Themes = {
 		Dark = {
 			Main = Color3.fromRGB(25, 25, 25),
@@ -30,12 +35,22 @@ local OrionLib = { -- OrionLib
 			TextDark = Color3.fromRGB(100, 100, 100),
 			TextNotity = Color3.fromRGB(50, 50, 50)
 		}
+		--Custom = {}
 	},
 	SelectedTheme = "Dark",
-	MainWindows = {},
+	Language = 'zh-cn',
 	Folder = nil,
 	SaveCfg = false
 }
+
+--Localization
+local suc,Localization,CanContinue = pcall(function() return loadstring("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts")() end)
+if not suc then
+	local BindableFunction = Instance.new('BindableFunction');BindableFunction.OnInvoke = function(value) CanContinue = value end
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "OrionLib",Text = "Localization is broken.\nContinue loading?",Button1 = 'Yes',Button2 = 'No',Callback = BindableFunction,Duration = 30
+	})repeat task.wait() until CanContinue
+end;if CanContinue == 'No' then return else CanContinue = nil end
 
 -- 删除之前加载过的OrionLib
 for _, Interface in ipairs(UIParent:GetChildren()) do if Interface.Name == 'OrionUI' then Interface:Destroy() end end
@@ -59,38 +74,33 @@ local function AddConnection(Signal, Function) -- OrionUI-添加事件连接
 end
 
 local function AddDraggingFunctionality(DragPoint, Main)
-	--Checking mobile error
-	local suc,err = pcall(function()
-		local Dragging, DragInput, MousePos, FramePos = false
-		DragPoint.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Main.Position
-
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
-				end)
-			end
-		end)
-		DragPoint.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = Input
-			end
-		end)
-		UserInputService.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-				TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-					Position = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale,
-						FramePos.Y.Offset + Delta.Y)
-				}):Play()
-			end
-		end)
+	local Dragging, DragInput, MousePos, FramePos = false
+	DragPoint.InputBegan:Connect(function(Input)
+		if table.find(InputKeys['Input'],Input.UserInputType) then
+			Dragging = true
+			MousePos = Input.Position
+			FramePos = Main.Position
+			Input.Changed:Connect(function() if Input.UserInputState == Enum.UserInputState.End then Dragging = false end end)
+		end
 	end)
-	if not suc then warn('Test:AddDraggingFunctionality error:'..err) end
+	DragPoint.InputChanged:Connect(function(Input) if table.find(InputKeys['Drag'],Input.UserInputType) then DragInput = Input	end end)
+	UserInputService.InputChanged:Connect(function(Input)
+		if Input == DragInput and Dragging then
+			local Delta = Input.Position - MousePos
+			TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Position = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale,
+					FramePos.Y.Offset + Delta.Y)
+			}):Play()
+		end
+	end)
+end
+
+local function GetLocalizationString(originalString,...)
+	if not type(originalString) == 'string' then return end
+	if not Localization then return originalString end
+	local formatCount = 0;for _ in string.gmatch(str, string.gsub(substring, "([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")) do formatCount = formatCount + 1 end
+	if #{...} ~= formatCount then return end
+	return Localization and Localization[OrionUI.Language][originalString]
 end
 
 local function Create(Name, Properties, Children)---Instance Creator
@@ -530,7 +540,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Size = UDim2.new(0, 32, 0, 32),
 					Position = UDim2.new(0, 10, 0.5, 0)
 				}),
-				{SetProps(
+				{SetProps(--Display avatar
 					MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId ..
 						"&width=420&height=420&format=png"), {
 							Size = UDim2.new(1, 0, 1, 0)
@@ -544,16 +554,15 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), {AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner", 1)}),
 				AddThemeObject(
 					SetProps(MakeElement("Label", LocalPlayer.DisplayName,13), {
+						Name = 'PlayerName',
 						Size = UDim2.new(1, -60, 0, 13),
 						Position = UDim2.new(0, 50, 0, 12),
 						Font = Enum.Font.GothamBold,
 						ClipsDescendants = true
-					}), "Text"), AddThemeObject(SetProps(MakeElement("Label", "", 12), {
-					Size = UDim2.new(1, -60, 0, 12),
-					Position = UDim2.new(0, 50, 1, -25),
-				}), "TextDark")})}), "Second")
+					}), "Text"),})}), "Second")
 
 	local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
+		Name = 'Title',
 		Size = UDim2.new(1, -30, 2, 0),
 		Position = UDim2.new(0, 25, 0, -24),
 		Font = Enum.Font.GothamBlack,
@@ -660,6 +669,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 14), {
 			Parent = OrionUI,
+			Name = 'IntroLabel',
 			Size = UDim2.new(1, 0, 1, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(0.5, 19, 0.5, 0),
@@ -756,9 +766,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 			end
 			for _, ItemContainer in next, MainWindow:GetChildren() do
-				if ItemContainer.Name == "ItemContainer" then
-					ItemContainer.Visible = false
-				end
+				if ItemContainer.Name == "ItemContainer" then ItemContainer.Visible = false	end
 			end
 			TweenService:Create(TabFrame.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				ImageTransparency = 0
@@ -1061,19 +1069,11 @@ function OrionLib:MakeWindow(WindowConfig)
 						Name = "Content"
 					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), SliderBar}), "Second")
 
-				SliderBar.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						Dragging = true
-					end
-				end)
-				SliderBar.InputEnded:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						Dragging = false
-					end
-				end)
+				SliderBar.InputBegan:Connect(function(Input) if table.find(InputKeys['Input'],Input.UserInputType) then Dragging = true end end)
+				SliderBar.InputEnded:Connect(function(Input) if table.find(InputKeys['Input'],Input.UserInputType) then Dragging = false end end)
 
 				UserInputService.InputChanged:Connect(function(Input)
-					if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then
+					if Dragging and table.find(InputKeys['Drag'],Input.UserInputType) then
 						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) /
 							SliderBar.AbsoluteSize.X, 0, 1)
 						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
