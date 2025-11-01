@@ -44,7 +44,7 @@ local OrionLib = { -- OrionLib
 }
 
 --Localization
-local suc,Localization,CanContinue = pcall(function() return loadstring("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts")() end)
+local suc,Localization,CanContinue = pcall(function() return loadstring("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts/Localization.lua")() end)
 if not suc then
 	local BindableFunction = Instance.new('BindableFunction');BindableFunction.OnInvoke = function(value) CanContinue = value end
 	game:GetService("StarterGui"):SetCore("SendNotification",{
