@@ -4,12 +4,21 @@ return {
         ['OrionLib.InterfaceHidden.Content.Mobile'] = '点击图标以重新打开界面',
         ['OrionLib.InterfaceHidden.Content.Computer'] = '按右Shift以重新打开界面',
         ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = '再次按右Shift以重新打开界面',
-        ['OrionLib.Configuration.Name'] = '游戏配置'
+        ['OrionLib.CatchError.Name'] = '报错提醒',
+        ['OrionLib.CatchError.Content'] = '发现报错 - 请查看控制台以了解具体错误是什么。',
+        ['OrionLib.Configuration.Name'] = '游戏配置',
+        ['OrionLib.Configuration.Success.Content'] = '已载入游戏ID为'..game.GameId..'的游戏配置.',
+        ['OrionLib.Configuration.NotSaveCfg.Content'] = '配置文件功能未启用,无法保存与载入配置.'
     },
     ['en-us'] = {
         ['OrionLib.InterfaceHidden.Name'] = 'Interface Hidden',
         ['OrionLib.InterfaceHidden.Content.Mobile'] = 'Click the icon to reopen the interface',
         ['OrionLib.InterfaceHidden.Content.Computer'] = 'Tap rightShift to reopen the interface',
-        ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap rightShift again to reopen the interface'
+        ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap rightShift again to reopen the interface',
+        ['OrionLib.CatchError.Name'] = 'Error notity',
+        ['OrionLib.CatchError.Content'] = 'Catch a error - Please see the console to know what error it is.',
+        ['OrionLib.Configuration.Name'] = 'Configuration',
+        ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
+        ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.'
     }
 }
