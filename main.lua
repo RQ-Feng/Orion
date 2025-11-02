@@ -129,11 +129,6 @@ local function SetChildren(Element, Children)--将Children里的实例移动到E
 	return Element
 end
 
-local function Round(Number, Factor)
-	local Result = math.floor(Number / Factor + (math.sign(Number) * 0.5)) * Factor
-	if Result < 0 then Result = Result + Factor end
-	return Result
-end
 --Theme
 local function ReturnColorProperty(Object)
 	if Object:IsA("Frame") or Object:IsA("TextButton") then return "BackgroundColor3"
@@ -1112,8 +1107,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					local float = #tostring(SliderConfig.Increment) -
 					(#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0))
 
-					Value = string.format("%."..float.."f",Value)
-					self.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
+					self.Value = math.clamp(string.format("%."..float.."f",Value), SliderConfig.Min, SliderConfig.Max)
+					
 					TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 						{Size = UDim2.fromScale((self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}
 					):Play()
@@ -1123,9 +1118,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 
 				Slider:Set(Slider.Value)
-				if SliderConfig.Flag then
-					OrionLib.Flags[SliderConfig.Flag] = Slider
-				end
+				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
 				return Slider
 			end
 
