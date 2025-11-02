@@ -1,5 +1,13 @@
 --Need OrionLib
 local SettingTabs = {}
+local Themes = {
+	['暗色'] = "Dark",
+	['浅色'] = "Light"
+}
+local Languages = {
+	['中文'] = "zh-cn",
+	['English'] = "en-us"
+}
 task.spawn(function()
 	repeat task.wait() until OrionLib and OrionLib.MainWindows[1]
     local MainWindows = OrionLib.MainWindows
@@ -14,10 +22,6 @@ task.spawn(function()
 			Name = "关闭UI",
 			Callback = function() OrionLib:Destroy() end
 		})
-		local Themes = {
-			['暗色'] = "Dark",
-			['浅色'] = "Light"
-		}
 		Setting:AddDropdown({
 			Name = "UI主题",
 			Default = "暗色",
@@ -25,6 +29,15 @@ task.spawn(function()
 			Callback = function(Value)
 				if not Themes[Value] then return end
 				OrionLib:SetTheme(Themes[Value])
+			end    
+		})
+		Setting:AddDropdown({
+			Name = "语言/Language",
+			Default = "中文",
+			Options = {"中文","English"},
+			Callback = function(Value)
+				if not Languages[Value] then return end
+				OrionLib:SetLanguage(Languages[Value])
 			end    
 		})
 		Setting:AddLabel("此服务器上的游戏ID为:" .. game.GameId)
