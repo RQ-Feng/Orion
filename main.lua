@@ -398,6 +398,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 end
 
 local function CatchError(Config,Value)
+	if OrionLib['Loaded'] == false then return end
 	local suc,err = pcall(function() Config.Callback(Value) end)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
@@ -904,7 +905,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3,
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)
 						}):Play()
-					spawn(function() CatchError(ButtonConfig) end)
+					task.spawn(function() CatchError(ButtonConfig) end)
 				end)
 
 				AddConnection(Click.MouseButton1Down, function()
@@ -970,7 +971,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				ToggleFrame.Name = 'Toggle'
 
-				function Toggle:Set(Value)
+				function Toggle:Set(Value,Loading)
 					Toggle.Value = Value
 					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 						{
@@ -985,10 +986,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							ImageTransparency = Toggle.Value and 0 or 1,
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
+
+					if Loading then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
 
-				Toggle:Set(Toggle.Value)
+				Toggle:Set(Toggle.Value,true)
 
 				AddConnection(Click.MouseEnter, function()
 					TweenService:Create(ToggleFrame,
@@ -1105,7 +1108,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end)
 
-				function Slider:Set(Value)
+				function Slider:Set(Value,Loading)
 					local float = #tostring(SliderConfig.Increment) -
 					(#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0))
 
@@ -1116,10 +1119,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					):Play()
 					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
+					if Loading then return end
 					CatchError(SliderConfig,self.Value)
 				end
 
-				Slider:Set(Slider.Value)
+				Slider:Set(Slider.Value,true)
 				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
 				return Slider
 			end
@@ -1237,7 +1241,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					AddOptions(Dropdown.Options)
 				end
 
-				function Dropdown:Set(Value)
+				function Dropdown:Set(Value,Loading)
 					if not table.find(Dropdown.Options, Value) then
 						Dropdown.Value = "..."
 						DropdownFrame.F.Selected.Text = Dropdown.Value
@@ -1274,8 +1278,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							TextTransparency = 0
 						}):Play()
-					-----Testing
-					--return DropdownConfig.Callback(Dropdown.Value)
+					if Loading then return end
 					return CatchError(DropdownConfig,Dropdown.Value)
 				end
 
@@ -1302,10 +1305,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				Dropdown:Refresh(Dropdown.Options, false)
-				Dropdown:Set(Dropdown.Value)
-				if DropdownConfig.Flag then
-					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
-				end
+				Dropdown:Set(Dropdown.Value,true)
+				if DropdownConfig.Flag then OrionLib.Flags[DropdownConfig.Flag] = Dropdown end
 				return Dropdown
 			end
 
@@ -1372,9 +1373,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(UserInputService.InputBegan, function(Input)
 					if UserInputService:GetFocusedTextBox() then return end
 					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-						if BindConfig.Hold then
-							Holding = true
-							CatchError(BindConfig,Holding)
+						if BindConfig.Hold then Holding = true	CatchError(BindConfig,Holding)
 						else CatchError(BindConfig) end
 					elseif Bind.Binding then
 						local Key
@@ -1390,10 +1389,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(UserInputService.InputEnded, function(Input)
 					if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
-						if BindConfig.Hold and Holding then
-							Holding = false
-							CatchError(BindConfig,Holding)
-						end
+						if BindConfig.Hold and Holding then Holding = false	CatchError(BindConfig,Holding) end
 					end
 				end)
 
@@ -1503,9 +1499,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(TextboxActual.FocusLost, function()
 					CatchError(TextboxConfig,TextboxActual.Text)
-					if TextboxConfig.TextDisappear then
-						TextboxActual.Text = ""
-					end
+					if TextboxConfig.TextDisappear then TextboxActual.Text = ""	end
 				end)
 
 				TextboxActual.Text = TextboxConfig.Default
@@ -1737,16 +1731,15 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end)
 
-				function Colorpicker:Set(Value)
+				function Colorpicker:Set(Value,Loading)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
+					if Loading then return end
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
-				Colorpicker:Set(Colorpicker.Value)
-				if ColorpickerConfig.Flag then
-					OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
-				end
+				Colorpicker:Set(Colorpicker.Value,true)
+				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
 				return Colorpicker
 			end
 
