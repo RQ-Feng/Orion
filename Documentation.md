@@ -30,6 +30,11 @@ OrionLib:SetLanguage(language)
 ```
 Support languages for ui now:zh-cn,en-us
 
+## Getting current language
+```lua
+OrionLib:GetLanguage()
+```
+
 ## Creating a Tab
 ```lua
 local Tab = Window:MakeTab({
