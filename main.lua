@@ -124,7 +124,7 @@ local function SetProps(Element, Props)--Set instance properties
 	return Element
 end
 
-local function SetChildren(Element, Children)--Set instance children
+local function SetChildren(Element, Children)--将Children里的实例移动到Element
 	table.foreach(Children, function(_, Child) Child.Parent = Element end)
 	return Element
 end
@@ -143,7 +143,7 @@ local function ReturnColorProperty(Object)
 	elseif Object:IsA("ImageLabel") or Object:IsA("ImageButton") then return "ImageColor3" end
 end
 
-local function AddThemeObject(Object, Type)--添加UI示例到对应的table
+local function AddThemeObject(Object, Type)--添加UI对象到对应的主题table
 	if not OrionLib.ThemeObjects[Type] then OrionLib.ThemeObjects[Type] = {} end
 	table.insert(OrionLib.ThemeObjects[Type], Object)
 	Object[ReturnColorProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Type]
@@ -612,6 +612,8 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	AddDraggingFunctionality(DragPoint, MainWindow)
 
+	AddConnection(UserInputService.InputChanged,function() IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled end)
+
 	AddConnection(CloseBtn.MouseButton1Down, function()--关闭按钮
 		MainWindow.Visible = false
 		UIHidden = true
@@ -787,6 +789,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
+
 			function ElementFunction:AddLabel(Text)
 				local LabelFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
@@ -806,6 +809,14 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return LabelFunction
 			end
+
+			function ElementFunction:DestroyLabel(Text)
+				for _,Element in pairs(Container:GetChildren()) do
+					if not Element:IsA('Frame') then continue end
+					if Element:FindFirstChild('Content').ContentText == Text then Element:Destroy() return end
+				end
+			end
+
 			function ElementFunction:AddParagraph(Text, Content)
 				Text = Text or "Text"
 				Content = Content or "Content"
@@ -821,12 +832,15 @@ function OrionLib:MakeWindow(WindowConfig)
 						Font = Enum.Font.GothamBold,
 						Name = "Title"
 					}), "Text"), AddThemeObject(SetProps(MakeElement("Label", "", 13), {
-							Size = UDim2.new(1, -24, 0, 0),
-							Position = UDim2.new(0, 12, 0, 26),
-							Font = Enum.Font.GothamSemibold,
-							Name = "Content",
-							TextWrapped = true
-						}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Second")
+						Size = UDim2.new(1, -24, 0, 0),
+						Position = UDim2.new(0, 12, 0, 26),
+						Font = Enum.Font.GothamSemibold,
+						Name = "Content",
+						TextWrapped = true
+					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke")}), 
+				"Second")
+				
+				ParagraphFrame.Name = 'Paragraph'
 
 				AddConnection(ParagraphFrame.Content:GetPropertyChangedSignal("Text"), function()
 					ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
@@ -836,11 +850,10 @@ function OrionLib:MakeWindow(WindowConfig)
 				ParagraphFrame.Content.Text = Content
 
 				local ParagraphFunction = {}
-				function ParagraphFunction:Set(ToChange)
-					ParagraphFrame.Content.Text = ToChange
-				end
+				function ParagraphFunction:Set(ToChange) ParagraphFrame.Content.Text = ToChange	end
 				return ParagraphFunction
 			end
+
 			function ElementFunction:AddButton(ButtonConfig)
 				ButtonConfig = ButtonConfig or {}
 				ButtonConfig.Name = ButtonConfig.Name or "Button"
@@ -850,9 +863,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local Button = {}
 
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
+				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
 				local ButtonFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
@@ -864,9 +875,12 @@ function OrionLib:MakeWindow(WindowConfig)
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
 					}), "Text"), AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
-							Size = UDim2.new(0, 20, 0, 20),
-							Position = UDim2.new(1, -30, 0, 7)
-						}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke"), Click}), "Second")
+						Size = UDim2.new(0, 20, 0, 20),
+						Position = UDim2.new(1, -30, 0, 7)
+					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke"), Click}),
+				"Second")
+
+				ButtonFrame.Name = 'Button'
 
 				AddConnection(Click.MouseEnter, function()
 					TweenService:Create(ButtonFrame,
@@ -906,12 +920,11 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 
-				function Button:Set(ButtonText)
-					ButtonFrame.Content.Text = ButtonText
-				end
+				function Button:Set(ButtonText) ButtonFrame.Content.Text = ButtonText end
 
 				return Button
 			end
+
 			function ElementFunction:AddToggle(ToggleConfig)
 				ToggleConfig = ToggleConfig or {}
 				ToggleConfig.Name = ToggleConfig.Name or "Toggle"
@@ -955,7 +968,10 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), ToggleBox, Click}), "Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), ToggleBox, Click}),
+				"Second")
+
+				ToggleFrame.Name = 'Toggle'
 
 				function Toggle:Set(Value)
 					Toggle.Value = Value
@@ -1019,6 +1035,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				if ToggleConfig.Flag then OrionLib.Flags[ToggleConfig.Flag] = Toggle end
 				return Toggle
 			end
+
 			function ElementFunction:AddSlider(SliderConfig)
 				SliderConfig = SliderConfig or {}
 				SliderConfig.Name = SliderConfig.Name or "Slider"
@@ -1074,7 +1091,10 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 10),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), SliderBar}), "Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), SliderBar}),
+				"Second")
+
+				SliderFrame.Name = 'Slider'
 
 				SliderBar.InputBegan:Connect(function(Input) if table.find(InputKeys['Input'],Input.UserInputType) then Dragging = true end end)
 				SliderBar.InputEnded:Connect(function(Input) if table.find(InputKeys['Input'],Input.UserInputType) then Dragging = false end end)
@@ -1089,14 +1109,13 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Slider:Set(Value)
+					Value = string.format("%.0f",Value)
 					self.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
 					TweenService:Create(SliderDrag, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-						{
-							Size = UDim2.fromScale(
-								(self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)
-						}):Play()
-					SliderBar.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
-					SliderDrag.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
+						{Size = UDim2.fromScale((self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}
+					):Play()
+					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
+					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					CatchError(SliderConfig,self.Value)
 				end
 
@@ -1106,6 +1125,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return Slider
 			end
+
 			function ElementFunction:AddDropdown(DropdownConfig)
 				DropdownConfig = DropdownConfig or {}
 				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
@@ -1126,9 +1146,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				}
 				local MaxElements = 5
 
-				if not table.find(Dropdown.Options, Dropdown.Value) then
-					Dropdown.Value = "..."
-				end
+				if not table.find(Dropdown.Options, Dropdown.Value) then Dropdown.Value = "..."	end
 
 				local DropdownList = MakeElement("List")
 
@@ -1156,26 +1174,29 @@ function OrionLib:MakeWindow(WindowConfig)
 							Font = Enum.Font.GothamBold,
 							Name = "Content"
 						}), "Text"), AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072706796"), {
-								Size = UDim2.new(0, 20, 0, 20),
-								AnchorPoint = Vector2.new(0, 0.5),
-								Position = UDim2.new(1, -30, 0.5, 0),
-								ImageColor3 = Color3.fromRGB(240, 240, 240),
-								Name = "Ico"
-							}), "TextDark"), AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
-								Size = UDim2.new(1, -40, 1, 0),
-								Font = Enum.Font.Gotham,
-								Name = "Selected",
-								TextXAlignment = Enum.TextXAlignment.Right
-							}), "TextDark"), AddThemeObject(SetProps(MakeElement("Frame"), {
-								Size = UDim2.new(1, 0, 0, 1),
-								Position = UDim2.new(0, 0, 1, -1),
-								Name = "Line",
-								Visible = false
-							}), "Stroke"), Click}), {
-							Size = UDim2.new(1, 0, 0, 38),
-							ClipsDescendants = true,
-							Name = "F"
-						}), AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner")}), "Second")
+							Size = UDim2.new(0, 20, 0, 20),
+							AnchorPoint = Vector2.new(0, 0.5),
+							Position = UDim2.new(1, -30, 0.5, 0),
+							ImageColor3 = Color3.fromRGB(240, 240, 240),
+							Name = "Ico"
+						}), "TextDark"), AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
+							Size = UDim2.new(1, -40, 1, 0),
+							Font = Enum.Font.Gotham,
+							Name = "Selected",
+							TextXAlignment = Enum.TextXAlignment.Right
+						}), "TextDark"), AddThemeObject(SetProps(MakeElement("Frame"), {
+							Size = UDim2.new(1, 0, 0, 1),
+							Position = UDim2.new(0, 0, 1, -1),
+							Name = "Line",
+							Visible = false
+						}), "Stroke"), Click}), {
+						Size = UDim2.new(1, 0, 0, 38),
+						ClipsDescendants = true,
+						Name = "F"
+					}), AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner")}),
+				"Second")
+
+				DropdownFrame.Name = 'Dropdown'
 
 				AddConnection(DropdownList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 					DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y)
@@ -1289,6 +1310,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return Dropdown
 			end
+
 			function ElementFunction:AddBind(BindConfig)
 				BindConfig.Name = BindConfig.Name or "Bind"
 				BindConfig.Default = BindConfig.Default or Enum.KeyCode.Unknown
@@ -1306,9 +1328,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				}
 				local Holding = false
 
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
+				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
 				local BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame",
 					Color3.fromRGB(255, 255, 255), 0, 4), {
@@ -1332,7 +1352,10 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), BindBox, Click}), "Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), BindBox, Click}), 
+				"Second")
+
+				BindFrame.Name = 'Bind'
 
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 					-- BindBox.Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)
@@ -1426,6 +1449,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return Bind
 			end
+
 			function ElementFunction:AddTextbox(TextboxConfig)
 				TextboxConfig = TextboxConfig or {}
 				TextboxConfig.Name = TextboxConfig.Name or "Textbox"
@@ -1466,7 +1490,10 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), TextContainer, Click}), "Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), TextContainer, Click}), 
+				"Second")
+
+				TextboxFrame.Name = 'Textbox'
 
 				AddConnection(TextboxActual:GetPropertyChangedSignal("Text"), function()
 					-- TextContainer.Size = UDim2.new(0, TextboxActual.TextBounds.X + 16, 0, 24)
@@ -1523,6 +1550,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 			end
+
 			function ElementFunction:AddColorpicker(ColorpickerConfig)
 				ColorpickerConfig = ColorpickerConfig or {}
 				ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
@@ -1626,7 +1654,10 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = UDim2.new(1, 0, 0, 38),
 							ClipsDescendants = true,
 							Name = "F"
-						}), ColorpickerContainer, AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Second")
+						}), ColorpickerContainer, AddThemeObject(MakeElement("Stroke"), "Stroke")}),
+					"Second")
+
+					ColorpickerFrame.Name = 'Colorpicker'
 
 				AddConnection(Click.MouseButton1Click, function()
 					Colorpicker.Toggled = not Colorpicker.Toggled
@@ -1720,6 +1751,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return Colorpicker
 			end
+
 			return ElementFunction
 		end
 
@@ -1736,11 +1768,13 @@ function OrionLib:MakeWindow(WindowConfig)
 				Position = UDim2.new(0, 0, 0, 3),
 				Font = Enum.Font.GothamSemibold
 			}), "TextDark"), SetChildren(SetProps(MakeElement("TFrame"), {
-					AnchorPoint = Vector2.new(0, 0),
-					Size = UDim2.new(1, 0, 1, -24),
-					Position = UDim2.new(0, 0, 0, 23),
-					Name = "Holder"
-				}), {MakeElement("List", 0, 6)})})
+				AnchorPoint = Vector2.new(0, 0),
+				Size = UDim2.new(1, 0, 1, -24),
+				Position = UDim2.new(0, 0, 0, 23),
+				Name = "Holder"
+			}), {MakeElement("List", 0, 6)})})
+
+			SectionFrame.Name = 'Section'
 
 			AddConnection(SectionFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 				SectionFrame.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 31)
@@ -1748,15 +1782,11 @@ function OrionLib:MakeWindow(WindowConfig)
 			end)
 
 			local SectionFunction = {}
-			for i, v in next, GetElements(SectionFrame.Holder) do
-				SectionFunction[i] = v
-			end
+			for i, v in next, GetElements(SectionFrame.Holder) do SectionFunction[i] = v end
 			return SectionFunction
 		end
 
-		for i, v in next, GetElements(Container) do
-			ElementFunction[i] = v
-		end
+		for i, v in next, GetElements(Container) do ElementFunction[i] = v end
 
 		return ElementFunction
 	end
