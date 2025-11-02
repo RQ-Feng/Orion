@@ -458,6 +458,8 @@ function OrionLib:SetLanguage(language)
 	OrionLib.Language = language
 end
 
+function OrionLib:GetLanguage() return OrionLib.Language end
+
 --MainUI
 function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
