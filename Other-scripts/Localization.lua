@@ -16,7 +16,7 @@ return {
         ['OrionLib.InterfaceHidden.Content.Computer'] = 'Tap RightShift to reopen the interface',
         ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap RightShift again to reopen the interface',
         ['OrionLib.CatchError.Name'] = 'Error notity',
-        ['OrionLib.CatchError.Content'] = 'Catch a error - Please see the console to know what error it is.',
+        ['OrionLib.CatchError.Content'] = 'Caught a error - Please check the console for error details.',
         ['OrionLib.Configuration.Name'] = 'Configuration',
         ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
         ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.'
