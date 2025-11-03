@@ -43,14 +43,19 @@ local OrionLib = { -- OrionLib
 	SaveCfg = false
 }
 
---Localization
-local suc,Localization,CanContinue = pcall(function() return loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts/Localization.lua"))() end)
-if not suc then
-	local BindableFunction = Instance.new('BindableFunction');BindableFunction.OnInvoke = function(value) CanContinue = value end
+--Resources:Localization and Icons
+local suc,Localization,Icons = pcall(function()
+	local Localization = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Resources/Localization.lua"))() 
+	local Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Resources/Icons.lua"))()
+	return Localization,Icons
+end)
+--Check about resources
+if not suc then 
 	game:GetService("StarterGui"):SetCore("SendNotification",{
-		Title = "OrionLib",Text = "Localization is broken.\nContinue loading?",Button1 = 'Yes',Button2 = 'No',Callback = BindableFunction,Duration = 30
-	})repeat task.wait() until CanContinue
-end;if CanContinue == 'No' then return else CanContinue = nil end
+		Title = "OrionLib",Text = "Problem encountered while loading resources.\nStop loading.",
+		Duration = 30
+	});return
+end
 
 -- 删除之前加载过的OrionLib
 for _, Interface in ipairs(UIParent:GetChildren()) do if Interface.Name == 'OrionUI' then Interface:Destroy() end end
