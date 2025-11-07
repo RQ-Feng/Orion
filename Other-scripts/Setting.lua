@@ -1,13 +1,15 @@
 --Need OrionLib
 local SettingTabs = {}
+
 local Themes = {
-	['暗色'] = "Dark",
-	['浅色'] = "Light"
+	['OrionLib.Setting.UItheme.Dark'] = "Dark",
+	['OrionLib.Setting.UItheme.Light'] = "Light"
 }
 local Languages = {
 	['中文'] = "zh-cn",
 	['English'] = "en-us"
 }
+
 task.spawn(function()
 	repeat task.wait() until OrionLib and OrionLib.MainWindows[1]
     local MainWindows = OrionLib.MainWindows
@@ -15,18 +17,19 @@ task.spawn(function()
 		if SettingTabs[table.find(MainWindows,MainWindow)] then continue end
 
 		local Setting = MainWindow:MakeTab({
-			Name = "UI设置",
+			Name = 'OrionLib.Setting.UISetting.Name',
 			Icon = "rbxassetid://4483345998"
 		})
 		Setting:AddButton({
-			Name = "关闭UI",
+			Name = 'OrionLib.Setting.CloseUI.Name',
 			Callback = function() OrionLib:Destroy() end
 		})
 		Setting:AddDropdown({
-			Name = "UI主题",
-			Default = "暗色",
-			Options = {"暗色","浅色"},
+			Name = 'OrionLib.Setting.UItheme.Name',
+			Default = 'OrionLib.Setting.UItheme.Dark',
+			Options = {'OrionLib.Setting.UItheme.Dark','OrionLib.Setting.UItheme.Light'},
 			Callback = function(Value)
+				print(Value)
 				if not Themes[Value] then return end
 				OrionLib:SetTheme(Themes[Value])
 			end    
@@ -38,12 +41,13 @@ task.spawn(function()
 			Callback = function(Value)
 				if not Languages[Value] then return end
 				OrionLib:SetLanguage(Languages[Value])
+				OrionLib:RefreshLanguage()
 			end    
 		})
-		Setting:AddLabel("此服务器上的游戏ID为:" .. game.GameId)
-		Setting:AddLabel("此服务器位置ID为:" .. game.PlaceId)
-		Setting:AddParagraph("此服务器UUID为:", game.JobId)
-		Setting:AddLabel("此服务器上的游戏版本为:version_" .. game.PlaceVersion)
+		Setting:AddLabel('OrionLib.Setting.GameId.Name')
+		Setting:AddLabel('OrionLib.Setting.PlaceId.Name')
+		Setting:AddParagraph('OrionLib.Setting.JobId.Name',game.JobId)
+		Setting:AddLabel('OrionLib.Setting.GameVersion.Name')
 
 		table.insert(SettingTabs,table.find(MainWindows,MainWindow),Setting)
 	end

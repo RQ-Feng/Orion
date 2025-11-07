@@ -100,12 +100,16 @@ local function AddDraggingFunctionality(DragPoint, Main)
 	end)
 end
 
-local function GetLocalizationString(originalString,...)
-	if not type(originalString) == 'string' then return end
-	if not Localization then return originalString end
+local function SetLocalizationString(TextLabel:TextLabel,...)
+	local originalString = TextLabel:GetAttribute('sourceString')
+	if not TextLabel:IsA('TextLabel') or type(originalString) ~= 'string' then return end
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
-	if #{...} ~= count then return originalString end
-	return Localization[OrionLib.Language][originalString]:format(...)
+	if #{...} ~= count then return end
+	
+	local LocalizationString = Localization[OrionLib.Language][originalString]
+	if not LocalizationString then return originalString end
+	TextLabel.Text = LocalizationString:format(...)
+	return
 end
 
 local function Create(Name, Properties, Children)---Instance Creator
@@ -313,6 +317,8 @@ CreateElement("Label", function(Text, TextSize, Transparency)
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
+	Label:SetAttribute("sourceString",Text)
+	SetLocalizationString(Label)
 	return Label
 end)
 --NotificationHolder & Function
@@ -408,8 +414,8 @@ local function CatchError(Config,Value)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
 		OrionLib:MakeNotification({
-			Name = GetLocalizationString('OrionLib.CatchError.Name'),
-			Content = GetLocalizationString('OrionLib.CatchError.Content'),
+			Name = 'OrionLib.CatchError.Name',
+			Content = 'OrionLib.CatchError.Content',
 			Image = "rbxassetid://4483345998",
 			Time = 5
 		})
@@ -450,8 +456,8 @@ function OrionLib:Init()
 		if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
 			LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
 			OrionLib:MakeNotification({
-				Name = GetLocalizationString('OrionLib.Configuration.Name'),
-				Content = GetLocalizationString('OrionLib.Configuration.Success.Content'),
+				Name = 'OrionLib.Configuration.Name',
+				Content = 'OrionLib.Configuration.Success.Content',
 				Time = 5
 			})
 		end
@@ -464,7 +470,12 @@ function OrionLib:SetLanguage(language)
 	OrionLib.Language = language
 end
 
-function OrionLib:GetLanguage() return OrionLib.Language end
+function OrionLib:RefreshLanguage()
+	for _,TextLabel:TextLabel in pairs(OrionUI:GetDescendants()) do
+		if not TextLabel:IsA('TextLabel') then continue end
+		SetLocalizationString(TextLabel)
+	end
+end
 
 --MainUI
 function OrionLib:MakeWindow(WindowConfig)
@@ -621,8 +632,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		MainWindow.Visible = false
 		UIHidden = true
 		OrionLib:MakeNotification({
-			Name = GetLocalizationString('OrionLib.InterfaceHidden.Name'),
-			Content = GetLocalizationString(IsOnMobile and 'OrionLib.InterfaceHidden.Content.Mobile' or 'OrionLib.InterfaceHidden.Content.Computer'),
+			Name = 'OrionLib.InterfaceHidden.Name',
+			Content = IsOnMobile and 'OrionLib.InterfaceHidden.Content.Mobile' or 'OrionLib.InterfaceHidden.Content.Computer',
 			Time = 5
 		})
 		if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = true end
@@ -635,8 +646,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				MainWindow.Visible = false
 				UIHidden = true
 				OrionLib:MakeNotification({
-					Name = GetLocalizationString('OrionLib.InterfaceHidden.Name'),
-					Content = GetLocalizationString('OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'),
+					Name = 'OrionLib.InterfaceHidden.Name',
+					Content = 'OrionLib.InterfaceHidden.Content.Computer.ShiftAgain',
 					Time = 5
 				})
 				WindowConfig.CloseCallback()
@@ -714,8 +725,8 @@ function OrionLib:MakeWindow(WindowConfig)
 	if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
 	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notity
-		Name = GetLocalizationString('OrionLib.Configuration.Name'),
-		Content = GetLocalizationString('OrionLib.Configuration.NotSaveCfg.Content'),
+		Name = 'OrionLib.Configuration.Name',
+		Content = 'OrionLib.Configuration.NotSaveCfg.Content',
 		Time = 5
 		}) end
 
@@ -796,6 +807,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			function ElementFunction:AddLabel(Text)
 				local LabelFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+						Name = 'Label',
 						Size = UDim2.new(1, 0, 0, 30),
 						BackgroundTransparency = 0.7,
 						Parent = ItemParent
@@ -807,9 +819,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Second")
 
 				local LabelFunction = {}
-				function LabelFunction:Set(ToChange)
-					LabelFrame.Content.Text = ToChange
-				end
+				function LabelFunction:Set(ToChange) LabelFrame.Content.Text = ToChange	end
 				return LabelFunction
 			end
 
@@ -1249,22 +1259,22 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Dropdown:Set(Value,Loading)
 					if not table.find(Dropdown.Options, Value) then
 						Dropdown.Value = "..."
-						DropdownFrame.F.Selected.Text = Dropdown.Value
 						for _, v in pairs(Dropdown.Buttons) do
 							TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{
-									BackgroundTransparency = 1
-								}):Play()
+								{BackgroundTransparency = 1}
+							):Play()
 							TweenService:Create(v.Title,
-								TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-									TextTransparency = 0.4
-								}):Play()
+								TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}
+							):Play()
 						end
 						return
 					end
 
 					Dropdown.Value = Value
 					DropdownFrame.F.Selected.Text = Dropdown.Value
+					
+					DropdownFrame.F.Selected:SetAttribute('sourceString',Value)
+					SetLocalizationString(DropdownFrame.F.Selected)
 
 					for _, v in pairs(Dropdown.Buttons) do
 						TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
