@@ -1,4 +1,5 @@
 if not OrionLib then OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))() end--lib
+loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts/Setting.lua'))()-- UI Setting
 local Window = OrionLib:MakeWindow({--Main Window
     Name = "Title of the library",
     SaveConfig = true,
@@ -163,12 +164,4 @@ Tab:AddButton({
     Callback = function()
         print("toggle flag:",OrionLib.Flags["toggle"].Value)
     end
-})
-local Tab2 = Window:MakeTab({
-	Name = "destroy",
-	Icon = "rbxassetid://4483345998",
-})
-Tab2:AddButton({
-	Name = "Destroy the tab",
-	Callback = function() OrionLib:Destroy() end    
 })
