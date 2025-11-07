@@ -5,10 +5,19 @@ return {
         ['OrionLib.InterfaceHidden.Content.Computer'] = '按右Shift以重新打开界面',
         ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = '再次按右Shift以重新打开界面',
         ['OrionLib.CatchError.Name'] = '报错提醒',
-        ['OrionLib.CatchError.Content'] = '发现报错 - 请查看控制台以了解具体错误是什么。',
+        ['OrionLib.CatchError.Content'] = '发现报错 - 请查看控制台以了解错误详情。',
         ['OrionLib.Configuration.Name'] = '游戏配置',
         ['OrionLib.Configuration.Success.Content'] = '已载入游戏ID为'..game.GameId..'的游戏配置.',
-        ['OrionLib.Configuration.NotSaveCfg.Content'] = '配置文件功能未启用,无法保存与载入配置.'
+        ['OrionLib.Configuration.NotSaveCfg.Content'] = '配置文件功能未启用,无法保存与载入配置.',
+        ['OrionLib.Setting.UISetting.Name'] = 'UI设置',
+        ['OrionLib.Setting.CloseUI.Name'] = '关闭UI',
+        ['OrionLib.Setting.UItheme.Name'] = 'UI主题',
+        ['OrionLib.Setting.UItheme.Dark'] = '暗色',
+        ['OrionLib.Setting.UItheme.Light'] = '浅色',
+        ['OrionLib.Setting.GameId.Name'] = '此服务器的GameId为:' .. game.GameId,
+        ['OrionLib.Setting.PlaceId.Name'] = '此服务器的PlaceId为:' .. game.PlaceId,
+        ['OrionLib.Setting.JobId.Name'] = '此服务器的JobId为:',
+        ['OrionLib.Setting.GameVersion.Name'] = '此服务器上的游戏版本为:version_' .. game.PlaceVersion
     },
     ['en-us'] = {
         ['OrionLib.InterfaceHidden.Name'] = 'Interface Hidden',
@@ -19,6 +28,15 @@ return {
         ['OrionLib.CatchError.Content'] = 'Caught a error - Please check the console for error details.',
         ['OrionLib.Configuration.Name'] = 'Configuration',
         ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
-        ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.'
+        ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.',
+        ['OrionLib.Setting.UISetting.Name'] = 'UI Setting',
+        ['OrionLib.Setting.CloseUI.Name'] = 'Close UI',
+        ['OrionLib.Setting.UItheme.Name'] = 'UI Theme',
+        ['OrionLib.Setting.UItheme.Dark'] = 'Dark mode',
+        ['OrionLib.Setting.UItheme.Light'] = 'Light mode',
+        ['OrionLib.Setting.GameId.Name'] = 'The GameId of this server is:' .. game.GameId,
+        ['OrionLib.Setting.PlaceId.Name'] = 'The PlaceId of this server is:' .. game.PlaceId,
+        ['OrionLib.Setting.JobId.Name'] = 'The JobId of this server is:',
+        ['OrionLib.Setting.GameVersion.Name'] = 'The game version on this server is:version_' .. game.PlaceVersion
     }
 }
