@@ -24,7 +24,7 @@ local OrionLib = { -- OrionLib
 			Divider = Color3.fromRGB(60, 60, 60),
 			Text = Color3.fromRGB(240, 240, 240),
 			TextDark = Color3.fromRGB(150, 150, 150),
-			TextNotity = Color3.fromRGB(200, 200, 200)
+			TextNotify = Color3.fromRGB(200, 200, 200)
 		},
 		Light = {
 			Main = Color3.fromRGB(240, 240, 240),
@@ -33,7 +33,7 @@ local OrionLib = { -- OrionLib
 			Divider = Color3.fromRGB(200, 200, 200),
 			Text = Color3.fromRGB(15, 15, 15),
 			TextDark = Color3.fromRGB(100, 100, 100),
-			TextNotity = Color3.fromRGB(50, 50, 50)
+			TextNotify = Color3.fromRGB(50, 50, 50)
 		}
 		--Custom = {}
 	},
@@ -46,7 +46,7 @@ local OrionLib = { -- OrionLib
 --Resources:Localization and Icons
 local suc,Localization,Icons = pcall(function()
 	local Localization = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Resources/Localization.lua"))() 
-	local Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Resources/Icons.lua"))()
+	local Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Resources/Icons.lua"))().icons
 	return Localization,Icons
 end)
 --Check about resources
@@ -367,7 +367,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Position = UDim2.new(0, 30, 0, 0),
 				Font = Enum.Font.GothamBold,
 				Name = "Title"
-			}), SetProps(AddThemeObject(MakeElement("Label", NotificationConfig.Content, 14),'TextNotity'), {
+			}), SetProps(AddThemeObject(MakeElement("Label", NotificationConfig.Content, 14),'TextNotify'), {
 				Size = UDim2.new(1, 0, 0, 0),
 				Position = UDim2.new(0, 0, 0, 25),
 				Font = Enum.Font.GothamSemibold,
@@ -416,7 +416,7 @@ local function CatchError(Config,Value)
 		OrionLib:MakeNotification({
 			Name = 'OrionLib.CatchError.Name',
 			Content = 'OrionLib.CatchError.Content',
-			Image = "rbxassetid://4483345998",
+			Image = Icons['alert-triangle'],
 			Time = 5
 		})
 	end
@@ -724,7 +724,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
-	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notity
+	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notify
 		Name = 'OrionLib.Configuration.Name',
 		Content = 'OrionLib.Configuration.NotSaveCfg.Content',
 		Time = 5

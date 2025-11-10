@@ -6,7 +6,7 @@ local Window = OrionLib:MakeWindow({--Main Window
     ConfigFolder = "OrionTest"
 })
 OrionLib:MakeNotification({
-    Name = "Notity on load",
+    Name = "Notify on load",
     Content = "Notification content... what will it say??",
     Image = "rbxassetid://4483345998",
     Time = 5
@@ -25,7 +25,7 @@ Tab:AddButton({
 	Name = "Make a notify",
 	Callback = function()
       	OrionLib:MakeNotification({
-            Name = "Notity by Button",
+            Name = "Notify by Button",
             Content = "Notification content",
             Image = "rbxassetid://4483345998",
             Time = 5

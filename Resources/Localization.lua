@@ -24,7 +24,7 @@ return {
         ['OrionLib.InterfaceHidden.Content.Mobile'] = 'Click the icon to reopen the interface',
         ['OrionLib.InterfaceHidden.Content.Computer'] = 'Tap RightShift to reopen the interface',
         ['OrionLib.InterfaceHidden.Content.Computer.ShiftAgain'] = 'Tap RightShift again to reopen the interface',
-        ['OrionLib.CatchError.Name'] = 'Error notity',
+        ['OrionLib.CatchError.Name'] = 'Error Notify',
         ['OrionLib.CatchError.Content'] = 'Caught a error - Please check the console for error details.',
         ['OrionLib.Configuration.Name'] = 'Configuration',
         ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
