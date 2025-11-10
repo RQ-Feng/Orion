@@ -951,6 +951,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					Value = ToggleConfig.Default,
 					Save = ToggleConfig.Save
 				}
+				
+				if ToggleConfig.Flag then OrionLib.Flags[ToggleConfig.Flag] = Toggle end
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.new(1, 0, 1, 0)
@@ -1047,7 +1049,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 
-				if ToggleConfig.Flag then OrionLib.Flags[ToggleConfig.Flag] = Toggle end
 				return Toggle
 			end
 
@@ -1070,6 +1071,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					Save = SliderConfig.Save
 				}
 				local Dragging = false
+
+				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
 
 				local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
 					Size = UDim2.new(0, 0, 1, 0),
@@ -1139,7 +1142,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 
 				Slider:Set(Slider.Value,true)
-				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
 				return Slider
 			end
 
@@ -1162,6 +1164,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					Save = DropdownConfig.Save
 				}
 				local MaxElements = 5
+
+				if DropdownConfig.Flag then OrionLib.Flags[DropdownConfig.Flag] = Dropdown end
 
 				if not table.find(Dropdown.Options, Dropdown.Value) then Dropdown.Value = "..."	end
 
@@ -1321,7 +1325,6 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				Dropdown:Refresh(Dropdown.Options, false)
 				Dropdown:Set(Dropdown.Value,true)
-				if DropdownConfig.Flag then OrionLib.Flags[DropdownConfig.Flag] = Dropdown end
 				return Dropdown
 			end
 
@@ -1574,6 +1577,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					Type = "Colorpicker",
 					Save = ColorpickerConfig.Save
 				}
+				
+				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
 
 				local ColorSelection = Create("ImageLabel", {
 					Size = UDim2.new(0, 18, 0, 18),
@@ -1752,7 +1757,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 
 				Colorpicker:Set(Colorpicker.Value,true)
-				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
 				return Colorpicker
 			end
 
