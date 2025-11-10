@@ -1002,7 +1002,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
 
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
 
@@ -1134,7 +1134,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					):Play()
 					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(SliderConfig,self.Value)
 				end
 
@@ -1293,7 +1293,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							TextTransparency = 0
 						}):Play()
-					if Loading then return end
+					if Loading and not Value then return end
 					return CatchError(DropdownConfig,Dropdown.Value)
 				end
 
@@ -1740,16 +1740,14 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Hue.InputEnded, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then
-							HueInput:Disconnect()
-						end
+						if HueInput then HueInput:Disconnect() end
 					end
 				end)
 
 				function Colorpicker:Set(Value,Loading)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
