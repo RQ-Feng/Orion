@@ -6,6 +6,7 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local UIParent = gethui and gethui() or game.CoreGui or LocalPlayer.PlayerGui
 local IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+local OldMouseBehavior = UserInputService.MouseBehavior
 local InputKeys = {--输入键
 	['Input'] = {Enum.UserInputType.MouseButton1,Enum.UserInputType.Touch},
 	['Drag'] = {Enum.UserInputType.MouseMovement,Enum.UserInputType.Touch}
@@ -681,22 +682,27 @@ function OrionLib:MakeWindow(WindowConfig)
 			Content = IsOnMobile and 'OrionLib.InterfaceHidden.Content.Mobile' or 'OrionLib.InterfaceHidden.Content.Computer',
 			Time = 5
 		})
+		UserInputService.MouseBehavior = OldMouseBehavior
 		if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = true end
 		WindowConfig.CloseCallback()
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)--右Shift检测
-		if Input.KeyCode == Enum.KeyCode.RightShift then
-			if UIHidden == false then
-				MainWindow.Visible = false
-				UIHidden = true
-				OrionLib:MakeNotification({
-					Name = 'OrionLib.InterfaceHidden.Name',
-					Content = 'OrionLib.InterfaceHidden.Content.Computer.ShiftAgain',
-					Time = 5
-				})
-				WindowConfig.CloseCallback()
-			else MainWindow.Visible = true; UIHidden = false end
+		if Input.KeyCode ~= Enum.KeyCode.RightShift then return end
+		if UIHidden == false then
+			MainWindow.Visible = false
+			UIHidden = true
+			OrionLib:MakeNotification({
+				Name = 'OrionLib.InterfaceHidden.Name',
+				Content = 'OrionLib.InterfaceHidden.Content.Computer.ShiftAgain',
+				Time = 5
+			})
+			UserInputService.MouseBehavior = OldMouseBehavior
+			WindowConfig.CloseCallback()
+		else MainWindow.Visible = true
+			UIHidden = false
+			OldMouseBehavior = UserInputService.MouseBehavior
+			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 		end
 	end)
 
@@ -1150,8 +1156,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
 				DropdownConfig.Options = DropdownConfig.Options or {}
 				DropdownConfig.Default = DropdownConfig.Default or ""
-				DropdownConfig.Callback = DropdownConfig.Callback or function()
-				end
+				DropdownConfig.Multi = DropdownConfig.Multi or false
+				DropdownConfig.Callback = DropdownConfig.Callback or function() end
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
 				DropdownConfig.Save = DropdownConfig.Save or false
 
