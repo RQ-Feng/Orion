@@ -30,9 +30,17 @@ OrionLib:SetLanguage(language)
 ```
 Support languages for ui now:zh-cn,en-us
 
-## Getting current language
+## Inserting localization table
 ```lua
-OrionLib:GetLanguage()
+OrionLib:InsertLanguage(LocalizationTable)
+```
+The format must follow:
+```lua
+{
+	['language-name'] = {
+		['originalString(Cannot contain the character "OrionLib")'] = 'localizationString'
+	}
+}
 ```
 
 ## Creating a Tab

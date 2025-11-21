@@ -6,7 +6,7 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 local UIParent = gethui and gethui() or game.CoreGui or LocalPlayer.PlayerGui
 local IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local OldMouseBehavior = UserInputService.MouseBehavior
+local OldMouseBehavior = Enum.MouseBehavior.Default
 local InputKeys = {--输入键
 	['Input'] = {Enum.UserInputType.MouseButton1,Enum.UserInputType.Touch},
 	['Drag'] = {Enum.UserInputType.MouseMovement,Enum.UserInputType.Touch}
@@ -156,7 +156,7 @@ local function AddThemeObject(Object, Type)--添加UI对象到对应的主题tab
 end
 
 function OrionLib:SetTheme(ThemeName)--设置主题
-	if not OrionLib.Themes[ThemeName] then warn("Orion Lib - 主题不存在: " .. ThemeName) return end
+	if not OrionLib.Themes[ThemeName] then warn("Orion Lib - Unknown theme: " .. ThemeName) return end
 	OrionLib.SelectedTheme = ThemeName
 	for Name, Type in pairs(OrionLib.ThemeObjects) do
 		for _, Object in pairs(Type) do
@@ -410,7 +410,6 @@ function OrionLib:MakeNotification(NotificationConfig)
 end
 
 local function CatchError(Config,Value)
-	if OrionLib['Loaded'] == false then return end
 	local suc,err = pcall(function() Config.Callback(Value) end)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
@@ -467,14 +466,25 @@ end
 
 function OrionLib:SetLanguage(language)
 	if type(language) ~= 'string' then return end
-	if not Localization[language] then warn('OrionLib - Unsupport language;',language) return end
+	if not Localization[language] then warn('OrionLib - Unsupport language:',language) return end
 	OrionLib.Language = language
-end
 
-function OrionLib:RefreshLanguage()
-	for _,TextLabel:TextLabel in pairs(OrionUI:GetDescendants()) do
+	for _,TextLabel in pairs(OrionUI:GetDescendants()) do
 		if not TextLabel:IsA('TextLabel') then continue end
 		SetLocalizationString(TextLabel)
+	end
+end
+
+function OrionLib:InsertLanguage(LocalizationTable)
+	if type(LocalizationTable) ~= 'table' then return end
+	for Language,Table in pairs(LocalizationTable) do
+		if type(Table) ~= 'table' then continue end
+		if not Localization[Language] then Localization[Language] = {} end
+		
+		for originalString,localizationString in pairs(Table) do
+			if type(originalString) ~= 'string' or string.match(originalString,'OrionLib') then continue end
+			Localization[Language][originalString] = localizationString
+		end
 	end
 end
 
@@ -1010,7 +1020,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
 
-					if Loading and not Value then return end
+					if Loading or not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
 
@@ -1143,7 +1153,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					):Play()
 					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
-					if Loading and not Value then return end
+					if Loading or not Value then return end
 					CatchError(SliderConfig,self.Value)
 				end
 
@@ -1156,7 +1166,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
 				DropdownConfig.Options = DropdownConfig.Options or {}
 				DropdownConfig.Default = DropdownConfig.Default or ""
-				DropdownConfig.Multi = DropdownConfig.Multi or false
+				DropdownConfig.Multiple = DropdownConfig.Multiple or false
 				DropdownConfig.Callback = DropdownConfig.Callback or function() end
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
 				DropdownConfig.Save = DropdownConfig.Save or false
@@ -1211,12 +1221,14 @@ function OrionLib:MakeWindow(WindowConfig)
 							Font = Enum.Font.Gotham,
 							Name = "Selected",
 							TextXAlignment = Enum.TextXAlignment.Right
-						}), "TextDark"), AddThemeObject(SetProps(MakeElement("Frame"), {
-							Size = UDim2.new(1, 0, 0, 1),
-							Position = UDim2.new(0, 0, 1, -1),
-							Name = "Line",
-							Visible = false
-						}), "Stroke"), Click}), {
+						}), "TextDark"), 
+						-- AddThemeObject(SetProps(MakeElement("Frame"), {
+						-- 	Size = UDim2.new(1, 0, 0, 1),
+						-- 	Position = UDim2.new(0, 0, 1, -1),
+						-- 	Name = "Line",
+						-- 	Visible = false
+						-- }), "Stroke"),
+						 Click}), {
 						Size = UDim2.new(1, 0, 0, 38),
 						ClipsDescendants = true,
 						Name = "F"
@@ -1256,9 +1268,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Dropdown:Refresh(Options, Delete)
 					if Delete then
-						for _, v in pairs(Dropdown.Buttons) do
-							v:Destroy()
-						end
+						Dropdown.Buttons:ClearAllChildren()
 						table.clear(Dropdown.Options)
 						table.clear(Dropdown.Buttons)
 					end
@@ -1267,7 +1277,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 
 				function Dropdown:Set(Value,Loading)
-					if not table.find(Dropdown.Options, Value) then
+					local ValueTable = {Value}
+					if not table.find(Dropdown.Options,Value) then
 						Dropdown.Value = "..."
 						for _, v in pairs(Dropdown.Buttons) do
 							TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -1295,6 +1306,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								TextTransparency = 0.4
 							}):Play()
 					end
+					-- Highlight selected
 					TweenService:Create(Dropdown.Buttons[Value],
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							BackgroundTransparency = 0
@@ -1303,13 +1315,13 @@ function OrionLib:MakeWindow(WindowConfig)
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							TextTransparency = 0
 						}):Play()
-					if Loading and not Value then return end
+					if Loading or not Value then return end
 					return CatchError(DropdownConfig,Dropdown.Value)
 				end
 
 				AddConnection(Click.MouseButton1Click, function()
 					Dropdown.Toggled = not Dropdown.Toggled
-					DropdownFrame.F.Line.Visible = Dropdown.Toggled
+					--DropdownFrame.F.Line.Visible = Dropdown.Toggled
 					TweenService:Create(DropdownFrame.F.Ico,
 						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 							Rotation = Dropdown.Toggled and 180 or 0
@@ -1758,7 +1770,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Colorpicker:Set(Value,Loading)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					if Loading and not Value then return end
+					if Loading or not Value then return end
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 

@@ -38,11 +38,7 @@ task.spawn(function()
 			Name = "语言/Language",
 			Default = "中文",
 			Options = {"中文","English"},
-			Callback = function(Value)
-				if not Languages[Value] then return end
-				OrionLib:SetLanguage(Languages[Value])
-				OrionLib:RefreshLanguage()
-			end    
+			Callback = function(Value) OrionLib:SetLanguage(Languages[Value]) end    
 		})
 		Setting:AddLabel('OrionLib.Setting.GameId.Name')
 		Setting:AddLabel('OrionLib.Setting.PlaceId.Name')
