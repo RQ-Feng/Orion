@@ -104,10 +104,11 @@ end
 local function SetLocalizationString(TextLabel:TextLabel,...)
 	local originalString = TextLabel:GetAttribute('sourceString')
 	if not TextLabel:IsA('TextLabel') or type(originalString) ~= 'string' then return end
+
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
-	if #{...} ~= count then return end
+	if #{...} ~= count then return originalString end
 	
-	local LocalizationString = Localization[OrionLib.Language][originalString]
+	local suc,LocalizationString = pcall(function() return Localization[OrionLib.Language][originalString] end)
 	if not LocalizationString then return originalString end
 	TextLabel.Text = LocalizationString:format(...)
 	return
@@ -381,7 +382,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		Sound.SoundId = NotificationConfig.SoundId
 		Sound.Volume = 5
 		Sound.Playing = true
-
+		if not NotificationFrame then return end
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {
 			Position = UDim2.new(0, 0, 0, 0)
 		}):Play()
@@ -409,8 +410,9 @@ function OrionLib:MakeNotification(NotificationConfig)
 	end)
 end
 
-local function CatchError(Config,Value)
-	local suc,err = pcall(function() Config.Callback(Value) end)
+local function CatchError(Config,...)
+	local Table = ... and {...} or nil
+	local suc,err = pcall(function() if Table then Config.Callback(unpack(Table)) else Config.Callback() end end)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
 		OrionLib:MakeNotification({
@@ -1175,11 +1177,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					Value = DropdownConfig.Default,
 					Options = DropdownConfig.Options,
 					Buttons = {},
-					Toggled = false,
-					Type = "Dropdown",
 					Save = DropdownConfig.Save
 				}
-				local MaxElements = 5
+
+				local MaxDisplayElements = 5
+				local Toggled = false
 
 				if DropdownConfig.Flag then OrionLib.Flags[DropdownConfig.Flag] = Dropdown end
 
@@ -1195,9 +1197,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						ClipsDescendants = true
 					}), "Divider")
 
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
+				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
 				local DropdownFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
@@ -1232,7 +1232,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						Size = UDim2.new(1, 0, 0, 38),
 						ClipsDescendants = true,
 						Name = "F"
-					}), AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner")}),
+					}), AddThemeObject(MakeElement("Stroke"), "Stroke")}),
 				"Second")
 
 				DropdownFrame.Name = 'Dropdown'
@@ -1241,8 +1241,16 @@ function OrionLib:MakeWindow(WindowConfig)
 					DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y)
 				end)
 
-				local function AddOptions(Options)
-					for _, Option in pairs(Options) do
+				function Dropdown:Refresh(Options, Delete)
+					if type(Options) ~= "table" then return end
+					if Delete then
+						for _,v in pairs(Dropdown.Buttons) do v:Destroy() end
+						table.clear(Dropdown.Options)
+						table.clear(Dropdown.Buttons)
+					end
+					Dropdown.Options = Options
+					
+					for _, Option in pairs(Dropdown.Options) do
 						local OptionBtn = AddThemeObject(SetProps(
 							SetChildren(MakeElement("Button", Color3.fromRGB(40, 40, 40)),
 								{MakeElement("Corner", 0, 6),
@@ -1257,88 +1265,63 @@ function OrionLib:MakeWindow(WindowConfig)
 								ClipsDescendants = true
 							}), "Divider")
 
-						AddConnection(OptionBtn.MouseButton1Click, function()
-							Dropdown:Set(Option)
-							SaveCfg(game.GameId)
+						AddConnection(OptionBtn.MouseButton1Click, function() Dropdown:Set(Option) SaveCfg(game.GameId) end)
+
+						AddConnection(OptionBtn:GetAttributeChangedSignal('Selected'), function()--Tween on select
+							local Selected = OptionBtn:GetAttribute('Selected')
+							TweenService:Create(OptionBtn,
+								TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+									BackgroundTransparency = Selected and 0 or 1
+								}):Play()
+							TweenService:Create(OptionBtn.Title,
+								TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+									TextTransparency = Selected and 0 or 0.4
+								}):Play()
 						end)
 
+						OptionBtn:SetAttribute('Selected',false)
 						Dropdown.Buttons[Option] = OptionBtn
 					end
 				end
 
-				function Dropdown:Refresh(Options, Delete)
-					if Delete then
-						Dropdown.Buttons:ClearAllChildren()
-						table.clear(Dropdown.Options)
-						table.clear(Dropdown.Buttons)
-					end
-					Dropdown.Options = Options
-					AddOptions(Dropdown.Options)
-				end
+				function Dropdown:Set(Option,Loading)
+					if type(Option) ~= "string" or not table.find(Dropdown.Options,Option) then return end
+					local SelectedOptions = {}
+					Dropdown['Buttons'][Option]:SetAttribute('Selected',not Dropdown['Buttons'][Option]:GetAttribute('Selected'))
 
-				function Dropdown:Set(Value,Loading)
-					local ValueTable = {Value}
-					if not table.find(Dropdown.Options,Value) then
-						Dropdown.Value = "..."
-						for _, v in pairs(Dropdown.Buttons) do
-							TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{BackgroundTransparency = 1}
-							):Play()
-							TweenService:Create(v.Title,
-								TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}
-							):Play()
-						end
-						return
+					for _, button in pairs(Dropdown.Buttons) do
+						if button:GetAttribute('Selected') then table.insert(SelectedOptions,button.Title.Text) end
 					end
-
-					Dropdown.Value = Value
-					DropdownFrame.F.Selected.Text = Dropdown.Value
 					
-					DropdownFrame.F.Selected:SetAttribute('sourceString',Value)
-					SetLocalizationString(DropdownFrame.F.Selected)
+					if DropdownConfig.Multiple then Dropdown.Value = SelectedOptions
+					else Dropdown.Value = Dropdown['Buttons'][Option]:GetAttribute('Selected') and Option or nil end
 
-					for _, v in pairs(Dropdown.Buttons) do
-						TweenService:Create(v, TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							BackgroundTransparency = 1
-						}):Play()
-						TweenService:Create(v.Title,
-							TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								TextTransparency = 0.4
-							}):Play()
+					DropdownFrame.F.Selected.Text = DropdownConfig.Multiple and table.concat(SelectedOptions,',') or Dropdown.Value or ''
+					
+					if not DropdownConfig.Multiple then
+						DropdownFrame.F.Selected:SetAttribute('sourceString',Option)
+						SetLocalizationString(DropdownFrame.F.Selected)
+
+						for _, button in pairs(Dropdown.Buttons) do if button.Title.Text ~= Option then button:SetAttribute('Selected',false) end end
 					end
-					-- Highlight selected
-					TweenService:Create(Dropdown.Buttons[Value],
-						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							BackgroundTransparency = 0
-						}):Play()
-					TweenService:Create(Dropdown.Buttons[Value].Title,
-						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							TextTransparency = 0
-						}):Play()
-					if Loading or not Value then return end
-					return CatchError(DropdownConfig,Dropdown.Value)
+
+					if Loading or not Option then return end
+
+					if DropdownConfig.Multiple then return CatchError(DropdownConfig,unpack(SelectedOptions)) else return CatchError(DropdownConfig,Dropdown.Value) end
 				end
 
+				--Toggle tween
 				AddConnection(Click.MouseButton1Click, function()
-					Dropdown.Toggled = not Dropdown.Toggled
-					--DropdownFrame.F.Line.Visible = Dropdown.Toggled
+					Toggled = not Toggled
+					--DropdownFrame.F.Line.Visible = Toggled
 					TweenService:Create(DropdownFrame.F.Ico,
-						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Rotation = Dropdown.Toggled and 180 or 0
-						}):Play()
-					if #Dropdown.Options > MaxElements then
-						TweenService:Create(DropdownFrame,
-							TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Size = Dropdown.Toggled and UDim2.new(1, 0, 0, 38 + (MaxElements * 28)) or
-									UDim2.new(1, 0, 0, 38)
-							}):Play()
-					else
-						TweenService:Create(DropdownFrame,
-							TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Size = Dropdown.Toggled and UDim2.new(1, 0, 0, DropdownList.AbsoluteContentSize.Y + 38) or
-									UDim2.new(1, 0, 0, 38)
-							}):Play()
-					end
+						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation = Toggled and 180 or 0}
+					):Play()
+					TweenService:Create(DropdownFrame,
+						TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = 
+						Toggled and UDim2.new(1, 0, 0, 38 + (#Dropdown.Options > MaxDisplayElements and MaxDisplayElements * 28 or DropdownList.AbsoluteContentSize.Y))
+						or UDim2.new(1, 0, 0, 38)}
+					):Play()
 				end)
 
 				Dropdown:Refresh(Dropdown.Options, false)
@@ -1358,7 +1341,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				local Bind = {
 					Value,
 					Binding = false,
-					Type = "Bind",
 					Save = BindConfig.Save
 				}
 				local Holding = false
@@ -1592,7 +1574,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				local Colorpicker = {
 					Value = ColorpickerConfig.Default,
 					Toggled = false,
-					Type = "Colorpicker",
 					Save = ColorpickerConfig.Save
 				}
 				
