@@ -411,7 +411,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 end
 
 local function CatchError(Config,...)
-	local Table = ... and {...} or nil
+	local Table = (... and tostring(...)) and {...} or nil
 	local suc,err = pcall(function() if Table then Config.Callback(unpack(Table)) else Config.Callback() end end)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
@@ -1391,7 +1391,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(UserInputService.InputBegan, function(Input)
 					if UserInputService:GetFocusedTextBox() then return end
 					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-						if BindConfig.Hold then Holding = true	CatchError(BindConfig,Holding)
+						if BindConfig.Hold then Holding = true CatchError(BindConfig,Holding)
 						else CatchError(BindConfig) end
 					elseif Bind.Binding then
 						local Key
