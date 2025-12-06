@@ -108,7 +108,7 @@ local function SetLocalizationString(TextLabel:TextLabel,...)
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
 	if #{...} ~= count then return originalString end
 	
-	local suc,LocalizationString = pcall(function() return Localization[OrionLib.Language][originalString] end)
+	local _suc,LocalizationString = pcall(function() return Localization[OrionLib.Language][originalString] end)
 	if not LocalizationString then return originalString end
 	TextLabel.Text = LocalizationString:format(...)
 	return
@@ -411,7 +411,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 end
 
 local function CatchError(Config,...)
-	local Table = (... and tostring(...)) and {...} or nil
+	local Table = {...}
 	local suc,err = pcall(function() if Table then Config.Callback(unpack(Table)) else Config.Callback() end end)
 	if not suc then 
 		warn('"'..Config.Name..'"','got a error:' .. err)
@@ -1022,7 +1022,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
 
-					if Loading or not Value then return end
+					if Loading then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
 
@@ -1155,7 +1155,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					):Play()
 					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
-					if Loading or not Value then return end
+					if Loading then return end
 					CatchError(SliderConfig,self.Value)
 				end
 
@@ -1751,7 +1751,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Colorpicker:Set(Value,Loading)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					if Loading or not Value then return end
+					if Loading then return end
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
