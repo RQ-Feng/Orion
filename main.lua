@@ -101,6 +101,10 @@ local function AddDraggingFunctionality(DragPoint, Main)
 	end)
 end
 
+local function GetLocalizationString(originalString)
+	return Localization[OrionLib.Language][originalString] or originalString
+end
+
 local function SetLocalizationString(TextLabel:TextLabel,...)
 	local originalString = TextLabel:GetAttribute('sourceString')
 	if not TextLabel:IsA('TextLabel') or type(originalString) ~= 'string' then return end
@@ -108,7 +112,7 @@ local function SetLocalizationString(TextLabel:TextLabel,...)
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
 	if #{...} ~= count then return originalString end
 	
-	local _suc,LocalizationString = pcall(function() return Localization[OrionLib.Language][originalString] end)
+	local _suc,LocalizationString = pcall(function() return GetLocalizationString(originalString) end)
 	if not LocalizationString then return originalString end
 	TextLabel.Text = LocalizationString:format(...)
 	return
@@ -146,7 +150,8 @@ local function ReturnColorProperty(Object)
 	elseif Object:IsA("ScrollingFrame") then return "ScrollBarImageColor3"
 	elseif Object:IsA("UIStroke") then return "Color"
 	elseif Object:IsA("TextLabel") or Object:IsA("TextBox") then return "TextColor3"
-	elseif Object:IsA("ImageLabel") or Object:IsA("ImageButton") then return "ImageColor3" end
+	elseif Object:IsA("ImageLabel") or Object:IsA("ImageButton") then return "ImageColor3"
+	else return end
 end
 
 local function AddThemeObject(Object, Type)--添加UI对象到对应的主题table
@@ -1022,7 +1027,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
 
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
 
@@ -1155,7 +1160,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					):Play()
 					SliderBar.Value.Text = tostring(self.Value),SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value),SliderConfig.ValueName
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(SliderConfig,self.Value)
 				end
 
@@ -1168,11 +1173,12 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
 				DropdownConfig.Options = DropdownConfig.Options or {}
 				DropdownConfig.Default = DropdownConfig.Default or ""
+				DropdownConfig.Required = DropdownConfig.Required or true
 				DropdownConfig.Multiple = DropdownConfig.Multiple or false
 				DropdownConfig.Callback = DropdownConfig.Callback or function() end
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
 				DropdownConfig.Save = DropdownConfig.Save or false
-
+				
 				local Dropdown = {
 					Value = DropdownConfig.Default,
 					Options = DropdownConfig.Options,
@@ -1286,12 +1292,23 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Dropdown:Set(Option,Loading)
 					if type(Option) ~= "string" or not table.find(Dropdown.Options,Option) then return end
-					local SelectedOptions = {}
-					Dropdown['Buttons'][Option]:SetAttribute('Selected',not Dropdown['Buttons'][Option]:GetAttribute('Selected'))
 
-					for _, button in pairs(Dropdown.Buttons) do
-						if button:GetAttribute('Selected') then table.insert(SelectedOptions,button.Title.Text) end
+					local LocalizationOption = GetLocalizationString(Option)
+					local Button = Dropdown['Buttons'][Option]
+
+					local function GetSelectedOptionsName()
+						local options = {}
+						for _, button in pairs(Dropdown.Buttons) do
+							if button:GetAttribute('Selected') then table.insert(options,button.Title.Text) end
+						end	
+						return options
 					end
+
+					if DropdownConfig.Required and (DropdownConfig.Multiple and #GetSelectedOptionsName() == 1 or Button:GetAttribute('Selected')) then return end
+
+					Button:SetAttribute('Selected',not Button:GetAttribute('Selected'))
+
+					local SelectedOptions = GetSelectedOptionsName()
 					
 					if DropdownConfig.Multiple then Dropdown.Value = SelectedOptions
 					else Dropdown.Value = Dropdown['Buttons'][Option]:GetAttribute('Selected') and Option or nil end
@@ -1302,11 +1319,10 @@ function OrionLib:MakeWindow(WindowConfig)
 						DropdownFrame.F.Selected:SetAttribute('sourceString',Option)
 						SetLocalizationString(DropdownFrame.F.Selected)
 
-						for _, button in pairs(Dropdown.Buttons) do if button.Title.Text ~= Option then button:SetAttribute('Selected',false) end end
+						for _, button in pairs(Dropdown.Buttons) do if button.Title.Text ~= LocalizationOption then button:SetAttribute('Selected',false) end end
 					end
 
-					if Loading or not Option then return end
-
+					if Loading then return end
 					if DropdownConfig.Multiple then return CatchError(DropdownConfig,unpack(SelectedOptions)) else return CatchError(DropdownConfig,Dropdown.Value) end
 				end
 
@@ -1751,7 +1767,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Colorpicker:Set(Value,Loading)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
-					if Loading then return end
+					if Loading and not Value then return end
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
