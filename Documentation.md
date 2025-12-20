@@ -10,7 +10,11 @@ local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-F
 
 ## Creating a Window
 ```lua
-local Window = OrionLib:MakeWindow({Name = "Title of the library", SaveConfig = true, ConfigFolder = "OrionTest"})
+local Window = OrionLib:MakeWindow({
+	Name = "Title of the library",
+	SaveConfig = true,
+	ConfigFolder = "OrionTest"
+})
 
 --[[
 Name = <string> - The name of the UI.
@@ -38,9 +42,11 @@ The format must follow:
 ```lua
 {
 	['language-name'] = {
-		['originalString(Cannot contain the character "OrionLib")'] = 'localizationString'
+		['originalString'] = 'localizationString'
 	}
 }
+
+--The originalString cannot contain the character 'OrionLib'.
 ```
 
 ## Creating a Tab
@@ -254,6 +260,7 @@ Bind:Set(Enum.KeyCode.E)
 Tab:AddDropdown({
 	Name = "Dropdown",
 	Default = "1",
+	Required = true,
 	Options = {"1", "2"},
 	Callback = function(Value)
 		print(Value)
@@ -263,6 +270,7 @@ Tab:AddDropdown({
 --[[
 Name = <string> - The name of the dropdown.
 Default = <string> - The default value of the dropdown.
+Required = <boolean> - Must select at least one option of the dropdown.
 Options = <table> - The options in the dropdown.
 Callback = <function> - The function of the dropdown.
 ]]
@@ -279,7 +287,7 @@ The above boolean value "true" is whether or not the current buttons will be del
 Dropdown:Set("dropdown option")
 ```
 
-# Finishing your script(load config)
+# Finishing your script (Loading config)
 The below function needs to be added at the end of your code to load config.
 ```lua
 OrionLib:Init()
