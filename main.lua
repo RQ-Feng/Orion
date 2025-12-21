@@ -387,7 +387,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		Sound.SoundId = NotificationConfig.SoundId
 		Sound.Volume = 5
 		Sound.Playing = true
-		if not NotificationFrame then return end
+		if not OrionLib:IsRunning() then return end
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {
 			Position = UDim2.new(0, 0, 0, 0)
 		}):Play()
@@ -409,6 +409,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 			TextTransparency = 0.5
 		}):Play()
 		wait(0.05)
+		if not OrionLib:IsRunning() then return end
 		NotificationFrame:TweenPosition(UDim2.new(1, 20, 0, 0), 'In', 'Quint', 0.8, true)
 		wait(1.35)
 		NotificationParent:Destroy()
