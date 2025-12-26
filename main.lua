@@ -410,7 +410,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		}):Play()
 		wait(0.05)
 		if not OrionLib:IsRunning() then return end
-		NotificationFrame:TweenPosition(UDim2.new(1, 20, 0, 0), 'In', 'Quint', 0.8, true)
+		NotificationFrame:TweenPosition(UDim2.new(1, 100, 0, 0), 'In', 'Quint', 1, true)
 		wait(1.35)
 		NotificationParent:Destroy()
 	end)
