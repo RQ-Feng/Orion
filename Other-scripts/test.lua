@@ -32,6 +32,18 @@ Tab:AddButton({
         })
   	end    
 })
+Tab:AddButton({
+	Name = "Make a notify but need click twice",
+	ClickTwice = true,
+	Callback = function()
+      	OrionLib:MakeNotification({
+            Name = "Notify by other button",
+            Content = "Notification content",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+  	end    
+})
 --Toggle
 Tab:AddToggle({
 	Name = "This is a toggle!",

@@ -9,6 +9,8 @@ return {
         ['OrionLib.Configuration.Name'] = '游戏配置',
         ['OrionLib.Configuration.Success.Content'] = '已载入游戏ID为'..game.GameId..'的游戏配置.',
         ['OrionLib.Configuration.NotSaveCfg.Content'] = '配置文件功能未启用,无法保存与载入配置.',
+        ['OrionLib.Button.ClickTwice.Tip'] = '是否确认?',
+
         ['OrionLib.Setting.UISetting.Name'] = 'UI设置',
         ['OrionLib.Setting.CloseUI.Name'] = '关闭UI',
         ['OrionLib.Setting.UItheme.Name'] = 'UI主题',
@@ -29,6 +31,8 @@ return {
         ['OrionLib.Configuration.Name'] = 'Configuration',
         ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
         ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.',
+        ['OrionLib.Button.ClickTwice.Tip'] = 'You sure?',
+
         ['OrionLib.Setting.UISetting.Name'] = 'UI Setting',
         ['OrionLib.Setting.CloseUI.Name'] = 'Close UI',
         ['OrionLib.Setting.UItheme.Name'] = 'UI Theme',

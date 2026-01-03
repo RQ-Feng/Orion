@@ -32,7 +32,7 @@ CloseCallback = <function> - Function to execute when the window is closed.
 ```lua
 OrionLib:SetLanguage(language)
 ```
-Support languages for ui now:zh-cn,en-us
+Supporting languages for ui now:zh-cn,en-us
 
 ## Inserting localization table
 ```lua
@@ -96,13 +96,15 @@ Time = <number> - The duration of the notfication.
 ```lua
 Tab:AddButton({
 	Name = "Button!",
+	ClickTwice = false,
 	Callback = function()
-      		print("button pressed")
+      	print("button pressed")
   	end    
 })
 
 --[[
 Name = <string> - The name of the button.
+ClickTwice = <bool> - Make two confirmations are required of the button.
 Callback = <function> - The function of the button.
 ]]
 ```

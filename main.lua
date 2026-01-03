@@ -850,7 +850,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			function ElementFunction:DestroyLabel(Text)
 				for _,Element in pairs(Container:GetChildren()) do
 					if not Element:IsA('Frame') then continue end
-					if Element:FindFirstChild('Content').ContentText == Text then Element:Destroy() return end
+					if Element:FindFirstChild('Content').ContentText == Text then Element:Destroy(); return end
 				end
 			end
 
@@ -894,11 +894,13 @@ function OrionLib:MakeWindow(WindowConfig)
 			function ElementFunction:AddButton(ButtonConfig)
 				ButtonConfig = ButtonConfig or {}
 				ButtonConfig.Name = ButtonConfig.Name or "Button"
-				ButtonConfig.Callback = ButtonConfig.Callback or function()
-				end
+				ButtonConfig.Callback = ButtonConfig.Callback or function() end
+				ButtonConfig.ClickTwice = ButtonConfig.ClickTwice or false
 				ButtonConfig.Icon = ButtonConfig.Icon or "rbxassetid://3944703587"
 
 				local Button = {}
+				local CooldownTask
+				local CanClick = if ButtonConfig.ClickTwice then false else true
 
 				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
@@ -914,8 +916,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"), AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
 						Size = UDim2.new(0, 20, 0, 20),
 						Position = UDim2.new(1, -30, 0, 7)
-					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke"), Click}),
-				"Second")
+					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke"), Click})
+				,"Second")
 
 				ButtonFrame.Name = 'Button'
 
@@ -944,7 +946,19 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3,
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)
 						}):Play()
-					task.spawn(function() CatchError(ButtonConfig) end)
+					if not CanClick then 
+						CanClick = true
+						ButtonFrame.Content.Text = GetLocalizationString('OrionLib.Button.ClickTwice.Tip')
+						CooldownTask = task.spawn(function()
+							task.wait(1)
+							ButtonFrame.Content.Text = ButtonConfig.Name
+							CanClick = false
+						end); return
+					end
+					if CooldownTask then task.cancel(CooldownTask) end
+					ButtonFrame.Content.Text = ButtonConfig.Name
+					CanClick = if ButtonConfig.ClickTwice then false else true
+					CatchError(ButtonConfig)
 				end)
 
 				AddConnection(Click.MouseButton1Down, function()
@@ -957,7 +971,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 
-				function Button:Set(ButtonText) ButtonFrame.Content.Text = ButtonText end
+				function Button:Set(ButtonText) ButtonFrame.Content.Text = GetLocalizationString(ButtonText) or ButtonText end
 
 				return Button
 			end
@@ -1133,8 +1147,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 10),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), SliderBar}),
-				"Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), SliderBar})
+				,"Second")
 
 				SliderFrame.Name = 'Slider'
 
@@ -1356,7 +1370,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				BindConfig.Save = BindConfig.Save or false
 
 				local Bind = {
-					Value,
+					Value = Enum.KeyCode.Unknown,
 					Binding = false,
 					Save = BindConfig.Save
 				}
