@@ -3,7 +3,7 @@ A maintained(maybe idk) fork of OrionLib.<br />
 Maybe has some problem because my luau isn't very good
 
 > [!IMPORTANT]  
-> Multi windows are not recommended because it's not support and so bugged.
+> Multi windows are not recommended because it's not supported and so bugged.
 
 # Lib loader:
 ```lua
