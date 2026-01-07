@@ -280,7 +280,7 @@ Callback = <function> - The function of the dropdown.
 
 ### Adding a set of new Dropdown buttons to an existing menu
 ```lua
-Dropdown:Refresh(List<table>,true)
+Dropdown:Refresh(List<table>)
 ```
 
 The above boolean value "true" is whether or not the current buttons will be deleted.
