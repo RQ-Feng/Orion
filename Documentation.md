@@ -283,7 +283,6 @@ Callback = <function> - The function of the dropdown.
 Dropdown:Refresh(List<table>)
 ```
 
-The above boolean value "true" is whether or not the current buttons will be deleted.
 ### Selecting a dropdown option
 ```lua
 Dropdown:Set("dropdown option")
