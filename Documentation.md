@@ -73,9 +73,9 @@ Name = <string> - The name of the section.
 ```
 You can add elements to sections the same way you would add them to a tab normally.
 
-## Notifying the user
+## Making a Notification
 ```lua
-OrionLib:MakeNotification({
+local Notification = OrionLib:MakeNotification({
 	Name = "Title!",
 	Content = "Notification content... what will it say??",
 	Image = "rbxassetid://4483345998",
@@ -90,7 +90,10 @@ Time = <number> - The duration of the notfication.
 ]]
 ```
 
-
+## Closing a Notification
+```lua
+OrionLib:CloseNotification(Notification)
+```
 
 ## Creating a Button
 ```lua
@@ -288,16 +291,15 @@ Dropdown:Refresh(List<table>)
 Dropdown:Set("dropdown option")
 ```
 
-# Finishing your script (Loading config)
-The below function needs to be added at the end of your code to load config.
+# Loading your script's config
 ```lua
-OrionLib:Init()
+OrionLib:LoadConfig()
 ```
 
 # Setting UI theme
 There are currently two themes available: "Dark" and "Light"
 ```lua
-OrionLib:SetTheme()
+OrionLib:SetTheme(Theme<string>)
 ```
 
 ### How flags work.
