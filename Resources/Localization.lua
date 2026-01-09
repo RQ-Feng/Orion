@@ -7,7 +7,8 @@ return {
         ['OrionLib.CatchError.Name'] = '报错提醒',
         ['OrionLib.CatchError.Content'] = '发现报错 - 请查看控制台以了解错误详情。',
         ['OrionLib.Configuration.Name'] = '游戏配置',
-        ['OrionLib.Configuration.Success.Content'] = '已载入游戏ID为'..game.GameId..'的游戏配置.',
+        ['OrionLib.Configuration.Success.Content'] = '已载入游戏ID为'..game.PlaceId..'的游戏配置.',
+        ['OrionLib.Configuration.Failed.Content'] = '载入游戏配置失败.',
         ['OrionLib.Configuration.NotSaveCfg.Content'] = '配置文件功能未启用,无法保存与载入配置.',
         ['OrionLib.Button.ClickTwice.Tip'] = '是否确认?',
 
@@ -29,7 +30,8 @@ return {
         ['OrionLib.CatchError.Name'] = 'Error Notify',
         ['OrionLib.CatchError.Content'] = 'Caught a error - Please check the console for error details.',
         ['OrionLib.Configuration.Name'] = 'Configuration',
-        ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.GameId..'.',
+        ['OrionLib.Configuration.Success.Content'] = 'Auto-loaded configuration for the game',game.PlaceId..'.',
+        ['OrionLib.Configuration.Failed.Content'] = 'Failed to Auto-loaded configuration.',
         ['OrionLib.Configuration.NotSaveCfg.Content'] = 'The configuration file feature isn\'t enabled and configurations cannot be saved and loaded.',
         ['OrionLib.Button.ClickTwice.Tip'] = 'You sure?',
 
