@@ -181,7 +181,10 @@ function OrionLib:LoadConfig(CfgName)
 		for flagName,value in pairs(Data) do
 			if not OrionLib.Flags[flagName] then continue end
 			local flag = OrionLib.Flags[flagName]
-			task.spawn(function() flag:Set(flag.Type == "Colorpicker" and UnpackColor(value) or value) end)
+			task.spawn(function() 
+				if flag.Type ~= "Colorpicker" then flag:Set(value)
+				else flag:Set(UnpackColor(value)) end
+			end)
 		end
 	end)
 	OrionLib:MakeNotification({
@@ -197,7 +200,8 @@ local function SaveCfg()
 	local Data = {}
 	for flagName, flagConfig in pairs(OrionLib.Flags) do
 		if not flagConfig.Save then continue end
-		Data[flagName] = flagConfig.Type ~= "Colorpicker" and flagConfig.Value or PackColor(flagConfig.Value)
+		if flagConfig.Type ~= "Colorpicker" then Data[flagName] = flagConfig.Value
+		else Data[flagName] = PackColor(flagConfig.Value) end
 	end
 	local suc,err = pcall(function() writefile(Config, tostring(HttpService:JSONEncode(Data))) end)
 	if not suc then warn("Orion Lib - 保存配置错误,原因:" .. err) end
@@ -869,32 +873,35 @@ function OrionLib:MakeWindow(WindowConfig)
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 30),
 						BackgroundTransparency = 0.7,
+						Name = 'Paragraph',
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
 						Size = UDim2.new(1, -12, 0, 14),
 						Position = UDim2.new(0, 12, 0, 10),
 						Font = Enum.Font.GothamBold,
 						Name = "Title"
-					}), "Text"), AddThemeObject(SetProps(MakeElement("Label", "", 13), {
+					}), "Text"), AddThemeObject(SetProps(MakeElement("Label", Content, 13), {
 						Size = UDim2.new(1, -24, 0, 0),
 						Position = UDim2.new(0, 12, 0, 26),
 						Font = Enum.Font.GothamSemibold,
 						Name = "Content",
 						TextWrapped = true
-					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke")}), 
-				"Second")
+					}), "TextDark"), AddThemeObject(MakeElement("Stroke"), "Stroke")})
+				,"Second")
 				
-				ParagraphFrame.Name = 'Paragraph'
+				ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
+				ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
 
 				AddConnection(ParagraphFrame.Content:GetPropertyChangedSignal("Text"), function()
 					ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
 					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
 				end)
 
-				ParagraphFrame.Content.Text = Content
-
 				local ParagraphFunction = {}
-				function ParagraphFunction:Set(ToChange) ParagraphFrame.Content.Text = ToChange	end
+				function ParagraphFunction:Set(ToChange)
+					ParagraphFrame.Content:SetAttribute('sourceString',ToChange)
+					SetLocalizationString(ParagraphFrame.Content)
+				end
 				return ParagraphFunction
 			end
 
@@ -1614,6 +1621,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ColorpickerConfig.Save = ColorpickerConfig.Save or false
 
 				local ColorH, ColorS, ColorV = 1, 1, 1
+				local ColorInput,HueInput
 				local Colorpicker = {
 					Value = ColorpickerConfig.Default,
 					Toggled = false,
@@ -1743,9 +1751,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Color.InputBegan, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
+						if ColorInput then ColorInput:Disconnect() end
 						ColorInput = AddConnection(RunService.RenderStepped, function()
 							local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) /
 								Color.AbsoluteSize.X)
@@ -1761,17 +1767,13 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Color.InputEnded, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
+						if ColorInput then ColorInput:Disconnect() end
 					end
 				end)
 
 				AddConnection(Hue.InputBegan, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then
-							HueInput:Disconnect()
-						end
+						if HueInput then HueInput:Disconnect() end
 
 						HueInput = AddConnection(RunService.RenderStepped, function()
 							local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) /
