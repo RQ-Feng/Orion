@@ -51,12 +51,12 @@ local suc,Localization,Icons = pcall(function()
 	return Localization,Icons
 end)
 --Check about resources
-if not suc then 
+if not suc then pcall(function()
 	game:GetService("StarterGui"):SetCore("SendNotification",{
 		Title = "OrionLib",Text = "Problem encountered while loading resources.\nStop loading.",
 		Duration = 30
-	});return
-end
+	})
+end); return end
 
 -- 删除之前加载过的OrionLib
 for _, Interface in ipairs(UIParent:GetChildren()) do if Interface.Name == 'OrionUI' then Interface:Destroy() end end
@@ -98,7 +98,7 @@ local function AddDraggingFunctionality(DragPoint, Main)
 end
 
 local function GetLocalizationString(originalString)
-	return Localization[OrionLib.Language][originalString] or originalString
+	return (Localization and Localization[OrionLib.Language]) and Localization[OrionLib.Language][originalString] or originalString
 end
 
 local function SetLocalizationString(TextLabel:TextLabel,...)
@@ -207,7 +207,7 @@ local function SaveCfg()
 	if not suc then warn("Orion Lib - 保存配置错误,原因:" .. err) end
 end
 --Keybind tables with checker
-local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,
+local WhitelistedMouseInputType = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,
 	Enum.UserInputType.MouseButton3
 }
 local BlacklistedKeys = {Enum.KeyCode.Unknown, Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D,
@@ -1447,7 +1447,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						local Key
 						pcall(function() 
 							if not CheckKey(BlacklistedKeys, Input.KeyCode) then Key = Input.KeyCode end
-							if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then Key = Input.UserInputType end
+							if CheckKey(WhitelistedMouseInputType, Input.UserInputType) and not Key then Key = Input.UserInputType end
 						end)
 						Key = Key or Bind.Value
 						Bind:Set(Key)
@@ -1750,47 +1750,39 @@ function OrionLib:MakeWindow(WindowConfig)
 						Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
 
 				AddConnection(Color.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then ColorInput:Disconnect() end
-						ColorInput = AddConnection(RunService.RenderStepped, function()
-							local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) /
-								Color.AbsoluteSize.X)
-							local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) /
-								Color.AbsoluteSize.Y)
-							ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
-							ColorS = ColorX
-							ColorV = 1 - ColorY
-							UpdateColorPicker()
-						end)
-					end
+					if not table.find(InputKeys['Input'],input.UserInputType) then return end
+					if ColorInput then ColorInput:Disconnect() end
+					ColorInput = AddConnection(RunService.RenderStepped, function()
+						local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) /
+							Color.AbsoluteSize.X)
+						local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) /
+							Color.AbsoluteSize.Y)
+						ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
+						ColorS = ColorX
+						ColorV = 1 - ColorY
+						UpdateColorPicker()
+					end)
 				end)
 
 				AddConnection(Color.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if ColorInput then ColorInput:Disconnect() end
-					end
+					if not table.find(InputKeys['Input'],input.UserInputType) then return end
+					if ColorInput then ColorInput:Disconnect() end
 				end)
 
 				AddConnection(Hue.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then HueInput:Disconnect() end
-
-						HueInput = AddConnection(RunService.RenderStepped, function()
-							local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) /
-								Hue.AbsoluteSize.Y)
-
-							HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
-							ColorH = 1 - HueY
-
-							UpdateColorPicker()
-						end)
-					end
+					if not table.find(InputKeys['Input'],input.UserInputType) then return end
+					if HueInput then HueInput:Disconnect() end
+					HueInput = AddConnection(RunService.RenderStepped, function()
+						local HueY = math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y
+						HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
+						ColorH = 1 - HueY
+						UpdateColorPicker()
+					end)
 				end)
 
 				AddConnection(Hue.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if HueInput then HueInput:Disconnect() end
-					end
+					if not table.find(InputKeys['Input'],input.UserInputType) then return end
+					if HueInput then HueInput:Disconnect() end
 				end)
 
 				function Colorpicker:Set(Value,Loading)
