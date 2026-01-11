@@ -131,12 +131,12 @@ local function MakeElement(ElementName, ...)--Create instance by element
 end
 
 local function SetProps(Element, Props)--Set instance properties
-	table.foreach(Props, function(Property, Value) Element[Property] = Value end)
+	for Property, Value in pairs(Props) do Element[Property] = Value end
 	return Element
 end
 
 local function SetChildren(Element, Children)--将Children里的实例移动到Element
-	table.foreach(Children, function(_, Child) Child.Parent = Element end)
+	for _, Child in pairs(Children) do Child.Parent = Element end
 	return Element
 end
 
