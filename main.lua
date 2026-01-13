@@ -1041,9 +1041,10 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleFrame.Name = 'Toggle'
 
 				function Toggle:Set(Value,Loading)
+					if not Value then return end
 					Toggle.Value = Value
-					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-						{
+					TweenService:Create(ToggleBox,
+						TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 							BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Dark.Divider
 						}):Play()
 					TweenService:Create(ToggleBox.Stroke,
@@ -1055,7 +1056,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							ImageTransparency = Toggle.Value and 0 or 1,
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
-
+					if Value and Value == Toggle.Value then return end
 					if Loading and not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
@@ -1179,8 +1180,10 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Slider:Set(Value,Loading)
-					local float = #tostring(SliderConfig.Increment) -
-					(#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0))
+					if not Value then return end
+					local float = #tostring(SliderConfig.Increment) - (
+						#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0)
+					)
 
 					self.Value = math.clamp(string.format("%."..float.."f",Value), SliderConfig.Min, SliderConfig.Max)
 					
@@ -1786,6 +1789,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Colorpicker:Set(Value,Loading)
+					if not Value then return end
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
 					if Loading and not Value then return end
