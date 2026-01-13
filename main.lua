@@ -358,6 +358,8 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {SetProps
 function OrionLib:CloseNotification(NotificationParent)
 	if not NotificationParent or not NotificationParent:GetAttribute('WaitingForClose') then return end
 	local NotificationFrame = NotificationParent:FindFirstChild('NotificationFrame')
+	if not NotificationFrame then return end
+
 	NotificationParent:SetAttribute('WaitingForClose',false)
 	TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
 		ImageTransparency = 1
@@ -1041,7 +1043,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleFrame.Name = 'Toggle'
 
 				function Toggle:Set(Value,Loading)
-					if not Value then return end
+					if Value == nil then return end
 					Toggle.Value = Value
 					TweenService:Create(ToggleBox,
 						TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
@@ -1056,7 +1058,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							ImageTransparency = Toggle.Value and 0 or 1,
 							Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)
 						}):Play()
-					if Value and Value == Toggle.Value then return end
 					if Loading and not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
 				end
@@ -1180,7 +1181,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Slider:Set(Value,Loading)
-					if not Value then return end
+					if Value == nil then return end
 					local float = #tostring(SliderConfig.Increment) - (
 						#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0)
 					)
@@ -1789,7 +1790,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Colorpicker:Set(Value,Loading)
-					if not Value then return end
+					if Value == nil then return end
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
 					if Loading and not Value then return end
