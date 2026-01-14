@@ -359,29 +359,31 @@ function OrionLib:CloseNotification(NotificationParent)
 	if not NotificationParent or not NotificationParent:GetAttribute('WaitingForClose') then return end
 	local NotificationFrame = NotificationParent:FindFirstChild('NotificationFrame')
 	if not NotificationFrame then return end
-
 	NotificationParent:SetAttribute('WaitingForClose',false)
-	TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
-		ImageTransparency = 1
-	}):Play()
-	TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {
-		BackgroundTransparency = 0.6
-	}):Play()
-	task.wait(0.3)
-	TweenService:Create(NotificationFrame.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
-		Transparency = 0.9
-	}):Play()
-	TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
-		TextTransparency = 0.4
-	}):Play()
-	TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
-		TextTransparency = 0.5
-	}):Play()
-	task.wait(0.05)
-	if not OrionLib:IsRunning() then return end
-	NotificationFrame:TweenPosition(UDim2.new(1, 100, 0, 0), 'In', 'Quint', 1, true)
-	task.wait(1.35)
-	NotificationParent:Destroy()
+
+	task.spawn(function()
+		TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
+			ImageTransparency = 1
+		}):Play()
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {
+			BackgroundTransparency = 0.6
+		}):Play()
+		task.wait(0.3)
+		TweenService:Create(NotificationFrame.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
+			Transparency = 0.9
+		}):Play()
+		TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
+			TextTransparency = 0.4
+		}):Play()
+		TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
+			TextTransparency = 0.5
+		}):Play()
+		task.wait(0.05)
+		if not OrionLib:IsRunning() then return end
+		NotificationFrame:TweenPosition(UDim2.new(1, 100, 0, 0), 'In', 'Quint', 1, true)
+		task.wait(1.35)
+		NotificationParent:Destroy()
+	end)
 end
 
 function OrionLib:MakeNotification(NotificationConfig)
