@@ -1397,9 +1397,9 @@ function OrionLib:MakeWindow(WindowConfig)
 				local Bind = {
 					Value = Enum.KeyCode.Unknown,
 					Binding = false,
+					Holding = false,
 					Save = BindConfig.Save
 				}
-				local Holding = false
 
 				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
@@ -1419,52 +1419,54 @@ function OrionLib:MakeWindow(WindowConfig)
 				local BindFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
+						Name = 'Bind',
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
 						Name = "Content"
-					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), BindBox, Click}), 
-				"Second")
+					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke"), BindBox, Click})
+				,"Second")
 
-				BindFrame.Name = 'Bind'
+				function Bind:SetKey(Key)
+					Bind.Binding = false
+					Bind.Value = Key or Bind.Value
+					Bind.Value = Bind.Value.Name or Bind.Value
+					BindBox.Value.Text = Bind.Value
+				end
 
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
-					-- BindBox.Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)
 					TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 						{Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
 				end)
 
 				AddConnection(Click.InputEnded, function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if Bind.Binding then return end
-						Bind.Binding = true
-						BindBox.Value.Text = ""
-					end
+					if Input.UserInputType ~= Enum.UserInputType.MouseButton1 or Bind.Binding then return end
+					Bind.Binding = true
+					BindBox.Value.Text = ""
 				end)
 
 				AddConnection(UserInputService.InputBegan, function(Input)
 					if UserInputService:GetFocusedTextBox() then return end
-					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-						if BindConfig.Hold then Holding = true CatchError(BindConfig,Holding)
-						else CatchError(BindConfig) end
-					elseif Bind.Binding then
-						local Key
-						pcall(function() 
-							if not CheckKey(BlacklistedKeys, Input.KeyCode) then Key = Input.KeyCode end
-							if CheckKey(WhitelistedMouseInputType, Input.UserInputType) and not Key then Key = Input.UserInputType end
+					if not Bind.Binding then
+						if Input.KeyCode.Name ~= Bind.Value and Input.UserInputType.Name ~= Bind.Value then return end
+						if BindConfig.Hold then Bind.Holding = true end
+						CatchError(BindConfig,Bind.Holding)
+					else
+						local Suc,Key = pcall(function() 
+							if not CheckKey(BlacklistedKeys, Input.KeyCode) then return Input.KeyCode end
+							if CheckKey(WhitelistedMouseInputType, Input.UserInputType) then return Input.UserInputType end
+							return false
 						end)
-						Key = Key or Bind.Value
-						Bind:Set(Key)
-						SaveCfg()
+						Key = Suc and Key or Bind.Value
+						Bind:SetKey(Key); SaveCfg()
 					end
 				end)
 
 				AddConnection(UserInputService.InputEnded, function(Input)
-					if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
-						if BindConfig.Hold and Holding then Holding = false	CatchError(BindConfig,Holding) end
-					end
+					if Input.KeyCode.Name ~= Bind.Value and Input.UserInputType.Name ~= Bind.Value then return end
+					if BindConfig.Hold and Bind.Holding then Bind.Holding = false; CatchError(BindConfig,Bind.Holding) end
 				end)
 
 				AddConnection(Click.MouseEnter, function()
@@ -1504,14 +1506,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 				end)
 
-				function Bind:Set(Key)
-					Bind.Binding = false
-					Bind.Value = Key or Bind.Value
-					Bind.Value = Bind.Value.Name or Bind.Value
-					BindBox.Value.Text = Bind.Value
-				end
-
-				Bind:Set(BindConfig.Default)
+				Bind:SetKey(BindConfig.Default)
 				if BindConfig.Flag then
 					OrionLib.Flags[BindConfig.Flag] = Bind
 				end
@@ -1847,10 +1842,18 @@ end
 
 function OrionLib:Destroy() OrionUI:Destroy() end
 
-task.spawn(function() -- 停止运行后的处理
-	while OrionLib:IsRunning() do task.wait() end
+local function OnExit() -- 停止运行后的处理
 	for _, Connection in next, OrionLib.Connections do Connection:Disconnect() end
 	SaveCfg()
+end
+
+task.spawn(function()
+	while OrionLib:IsRunning() do task.wait() end
+	OnExit()
+end)
+AddConnection(game:GetService('Players').PlayerRemoving,function(plr)
+	if plr ~= LocalPlayer then return end
+	OnExit()
 end)
 
 return OrionLib

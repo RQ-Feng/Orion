@@ -254,9 +254,9 @@ Callback = <function> - The function of the bind.
 ]]
 ```
 
-### Chaning the value of a bind
+### Changing the key of a bind
 ```lua
-Bind:Set(Enum.KeyCode.E)
+Bind:SetKey(Enum.KeyCode.E)
 ```
 
 
