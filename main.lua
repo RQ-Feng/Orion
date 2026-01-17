@@ -1045,7 +1045,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleFrame.Name = 'Toggle'
 
 				function Toggle:Set(Value,Loading)
-					if Value == nil then return end
+					if Value == nil or not OrionLib:IsRunning() then return end
 					Toggle.Value = Value
 					TweenService:Create(ToggleBox,
 						TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
@@ -1183,7 +1183,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Slider:Set(Value,Loading)
-					if Value == nil then return end
+					if Value == nil or not OrionLib:IsRunning() then return end
 					local float = #tostring(SliderConfig.Increment) - (
 						#string.format("%.0f",SliderConfig.Increment) + (string.find(SliderConfig.Increment, "%.") and 1 or 0)
 					)
@@ -1787,7 +1787,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				function Colorpicker:Set(Value,Loading)
-					if Value == nil then return end
+					if Value == nil or not OrionLib:IsRunning() then return end
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
 					if Loading and not Value then return end
