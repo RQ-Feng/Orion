@@ -53,8 +53,10 @@ end)
 --Check about resources
 if not suc then pcall(function()
 	game:GetService("StarterGui"):SetCore("SendNotification",{
-		Title = "OrionLib",Text = "Problem encountered while loading resources.\nStop loading.",
-		Duration = 30
+		Title = "OrionLib",
+		Text = "Problem encountered while loading resources.\nStop loading.",
+		Duration = 30,
+		Button1 = 'ok'
 	})
 end); return end
 
@@ -190,7 +192,7 @@ function OrionLib:LoadConfig(CfgName)
 	OrionLib:MakeNotification({
 		Name = 'OrionLib.Configuration.Name',
 		Content = 'OrionLib.Configuration.'..(LoadSuc and 'Success' or 'Failed')..'.Content',
-		Image = LoadSuc and Icons['check'] or Icons['alert-triangle'],
+		Image = LoadSuc and Icons['save'] or Icons['alert-triangle'],
 		Time = 5
 	})
 end
@@ -346,7 +348,7 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {SetProps
 	SortOrder = Enum.SortOrder.LayoutOrder,
 	VerticalAlignment = Enum.VerticalAlignment.Bottom,
 	Padding = UDim.new(0, 5)
-})}), {
+	})}), {
 	Name = 'NotificationHolder',
 	Position = UDim2.new(1, -25, 1, -25),
 	Size = UDim2.new(0, 300, 1, -25),
@@ -545,7 +547,10 @@ function OrionLib:MakeWindow(WindowConfig)
 	pcall(function() if WindowConfig.SaveConfig and not isfolder(WindowConfig.ConfigFolder) then makefolder(WindowConfig.ConfigFolder) end end)
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4),
-		{Size = UDim2.new(1, 0, 1, -50)}),
+		{
+			Name = 'TabHolder',
+			Size = UDim2.new(1, 0, 1, -50)
+		}),
 		{MakeElement("List"), MakeElement("Padding", 8, 0, 0, 8)}), "Divider")
 
 	AddConnection(TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
@@ -553,6 +558,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	end)
 
 	local CloseBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Name = 'CloseBtn',
 		Size = UDim2.new(0.5, 0, 1, 0),
 		Position = UDim2.new(0.5, 0, 0, 0),
 		BackgroundTransparency = 1
@@ -562,6 +568,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	}), "Text")})
 
 	local MinimizeBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Name = 'MinimizeBtn',
 		Size = UDim2.new(0.5, 0, 1, 0),
 		BackgroundTransparency = 1
 	}), {AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072719338"), {
@@ -570,92 +577,112 @@ function OrionLib:MakeWindow(WindowConfig)
 		Name = "Ico"
 	}), "Text")})
 
-	local DragPoint = SetProps(MakeElement("TFrame"), {Size = UDim2.new(1, 0, 0, 50)})
+	local SettingBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Name = 'SettingBtn',
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1
+	}), {AddThemeObject(SetProps(MakeElement("Image", Icons['settings']), {
+		Position = UDim2.new(0, 9, 0, 6),
+		Size = UDim2.new(0, 18, 0, 18),
+		Name = "Ico"
+	}), "Text")})
 
-	local WindowStuff = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0,
-		10), {
+	local DragPoint = SetProps(MakeElement("TFrame"), {
+		Name = 'DragPointFrame',
+		Size = UDim2.new(1, 0, 0, 50)
+	})
+
+	local WindowStuff = AddThemeObject(SetChildren(
+		SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
+			Name = 'Sidebar',
 			Size = UDim2.new(0, 150, 1, -50),
 			Position = UDim2.new(0, 0, 0, 50)
 		}), {AddThemeObject(SetProps(MakeElement("Frame"), {
 			Size = UDim2.new(1, 0, 0, 10),
 			Position = UDim2.new(0, 0, 0, 0)
 		}), "Second"), AddThemeObject(SetProps(MakeElement("Frame"), {
-				Size = UDim2.new(0, 10, 1, 0),
-				Position = UDim2.new(1, -10, 0, 0)
-			}), "Second"), AddThemeObject(SetProps(MakeElement("Frame"), {
-				Size = UDim2.new(0, 1, 1, 0),
-				Position = UDim2.new(1, -1, 0, 0)
-			}), "Stroke"), TabHolder, SetChildren(SetProps(MakeElement("TFrame"), {
-				Size = UDim2.new(1, 0, 0, 50),
-				Position = UDim2.new(0, 0, 1, -50)
-			}), {AddThemeObject(SetProps(MakeElement("Frame"), {
-				Size = UDim2.new(1, 0, 0, 1)
-			}), "Stroke"), AddThemeObject(SetChildren(SetProps(MakeElement("Frame"), {
-					AnchorPoint = Vector2.new(0, 0.5),
-					Size = UDim2.new(0, 32, 0, 32),
-					Position = UDim2.new(0, 10, 0.5, 0)
-				}),
-				{SetProps(--Display avatar
-					MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId ..
-						"&width=420&height=420&format=png"), {
-							Size = UDim2.new(1, 0, 1, 0)
-						}), AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4031889928"), {
-						Size = UDim2.new(1, 0, 1, 0)
-					}), "Second"), MakeElement("Corner", 1)}), "Divider"), SetChildren(
-					SetProps(MakeElement("TFrame"), {
-						AnchorPoint = Vector2.new(0, 0.5),
-						Size = UDim2.new(0, 32, 0, 32),
-						Position = UDim2.new(0, 10, 0.5, 0)
-					}), {AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner", 1)}),
-				AddThemeObject(
-					SetProps(MakeElement("Label", LocalPlayer.DisplayName,13), {
-						Name = 'PlayerName',
-						Size = UDim2.new(1, -60, 0, 13),
-						Position = UDim2.new(0, 50, 0, 12),
-						Font = Enum.Font.GothamBold,
-						ClipsDescendants = true
-					}), "Text"),})}), "Second")
+			Size = UDim2.new(0, 10, 1, 0),
+			Position = UDim2.new(1, -10, 0, 0)
+		}), "Second"), AddThemeObject(SetProps(MakeElement("Frame"), {
+			Size = UDim2.new(0, 1, 1, 0),
+			Position = UDim2.new(1, -1, 0, 0)
+		}), "Stroke"), TabHolder, SetChildren(SetProps(MakeElement("TFrame"), {
+			Name = 'Player',
+			Size = UDim2.new(1, 0, 0, 50),
+			Position = UDim2.new(0, 0, 1, -50)
+		}), {AddThemeObject(SetProps(MakeElement("Frame"), {
+			Size = UDim2.new(1, 0, 0, 1)
+		}), "Stroke"), AddThemeObject(SetChildren(SetProps(MakeElement("Frame"), {
+			AnchorPoint = Vector2.new(0, 0.5),
+			Size = UDim2.new(0, 32, 0, 32),
+			Position = UDim2.new(0, 10, 0.5, 0)
+		}), {SetProps( -- Display avatar
+		MakeElement("Image", "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId ..
+			"&width=420&height=420&format=png"), {
+			Size = UDim2.new(1, 0, 1, 0)
+		}), AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://4031889928"), {
+			Size = UDim2.new(1, 0, 1, 0)
+		}), "Second"), MakeElement("Corner", 1)}), "Divider"), SetChildren(
+			SetProps(MakeElement("TFrame"), {
+				AnchorPoint = Vector2.new(0, 0.5),
+				Size = UDim2.new(0, 32, 0, 32),
+				Position = UDim2.new(0, 10, 0.5, 0)
+			}), {AddThemeObject(MakeElement("Stroke"), "Stroke"), MakeElement("Corner", 1)}),
+			AddThemeObject(SetProps(MakeElement("Label", LocalPlayer.DisplayName, 13), {
+			Name = 'PlayerName',
+			Size = UDim2.new(1, -60, 0, 13),
+			Position = UDim2.new(0, 50, 0, 12),
+			Font = Enum.Font.GothamBold,
+			ClipsDescendants = true}), "Text")})}
+	), "Second")
 
-	local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
+	local WindowTitle = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
 		Name = 'Title',
 		Size = UDim2.new(1, -30, 2, 0),
 		Position = UDim2.new(0, 25, 0, -24),
 		Font = Enum.Font.GothamBlack,
 		TextSize = 20
 	}), "Text")
-
+	
 	local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
 		Size = UDim2.new(1, 0, 0, 1),
 		Position = UDim2.new(0, 0, 1, -1)
 	}), "Stroke")
 
-	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0,--MainWindow初始化
-		10), {
+	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10),
+		{
 			Name = 'MainWindow',
 			Parent = OrionUI,
 			Position = UDim2.new(0.5, -307, 0.5, -172),
 			Size = UDim2.new(0, 615, 0, 344),
 			ClipsDescendants = true
 		}), {SetChildren(SetProps(MakeElement("TFrame"), {
-				Size = UDim2.new(1, 0, 0, 50),
-				Name = "TopBar"
-			}), {WindowName, WindowTopBarLine,
-				AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
-					Size = UDim2.new(0, 70, 0, 30),
-					Position = UDim2.new(1, -90, 0, 10)
-				}), {AddThemeObject(MakeElement("Stroke"), "Stroke"), AddThemeObject(
-					SetProps(MakeElement("Frame"), {
-						Size = UDim2.new(0, 1, 1, 0),
-						Position = UDim2.new(0.5, 0, 0, 0)
-					}), "Stroke"), CloseBtn, MinimizeBtn}), "Second")}), DragPoint, WindowStuff}), "Main")
+		Size = UDim2.new(1, 0, 0, 50),
+		Name = "TopBar"
+	}), {WindowTitle, WindowTopBarLine,
+		AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
+			Name = 'SettingButton',
+			Size = UDim2.new(0, 35, 0, 30),
+			Position = UDim2.new(0.9, -100, 0, 10)
+	}), {AddThemeObject(MakeElement("Stroke"), "Stroke"),SettingBtn}), "Second"),
+		AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
+		Name = 'Buttons',
+		Size = UDim2.new(0, 70, 0, 30),
+		Position = UDim2.new(1, -90, 0, 10)
+	}), {AddThemeObject(MakeElement("Stroke"), "Stroke"), AddThemeObject(
+		SetProps(MakeElement("Frame"), {
+			Size = UDim2.new(0, 1, 1, 0),
+			Position = UDim2.new(0.5, 0, 0, 0)
+		}), "Stroke"), CloseBtn, MinimizeBtn,}), "Second")}), DragPoint, WindowStuff
+	}), "Main")
 
 	if WindowConfig.ShowIcon then
-		WindowName.Position = UDim2.new(0, 50, 0, -24)
-		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
+		WindowTitle.Position = UDim2.new(0, 50, 0, -24)
+		SetProps(MakeElement("Image", WindowConfig.Icon), { -- WindowIcon
+			Parent = MainWindow.TopBar,
 			Size = UDim2.new(0, 20, 0, 20),
 			Position = UDim2.new(0, 25, 0, 15)
 		})
-		WindowIcon.Parent = MainWindow.TopBar
 	end
 
 	local function LoadSequence()--Intro function
@@ -699,15 +726,13 @@ function OrionLib:MakeWindow(WindowConfig)
 		MainWindow.Visible = true
 		LoadSequenceLogo:Destroy()
 		LoadSequenceText:Destroy()
-	end
-
-	if WindowConfig.IntroEnabled then LoadSequence() end--Intro
+	end; if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
 	AddDraggingFunctionality(DragPoint, MainWindow)
 
 	AddConnection(UserInputService.InputChanged,function() IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled end)
 
-	AddConnection(CloseBtn.MouseButton1Down, function()--关闭按钮
+	AddConnection(CloseBtn.MouseButton1Down, function()-- 关闭按钮行为设置
 		MainWindow.Visible = false
 		UIHidden = true
 		OrionLib:MakeNotification({
@@ -718,6 +743,28 @@ function OrionLib:MakeWindow(WindowConfig)
 		UserInputService.MouseBehavior = OldMouseBehavior
 		if IsOnMobile and OrionUI.MobileButton then OrionUI.MobileButton.Visible = true end
 		WindowConfig.CloseCallback()
+	end)
+
+	AddConnection(MinimizeBtn.MouseButton1Up, function()-- 最小化按钮行为设置
+		if Minimized then
+			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 615, 0, 344)
+			}):Play()
+			MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
+			task.wait(0.02)
+			MainWindow.ClipsDescendants = false
+			WindowStuff.Visible = true
+			WindowTopBarLine.Visible = true
+		else
+			MainWindow.ClipsDescendants = true
+			WindowTopBarLine.Visible = false
+			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
+			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, WindowTitle.TextBounds.X + 140, 0, 50)
+			}):Play()
+			task.wait(0.1)
+			WindowStuff.Visible = false
+		end; Minimized = not Minimized
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)--右Shift检测
@@ -732,50 +779,29 @@ function OrionLib:MakeWindow(WindowConfig)
 			})
 			UserInputService.MouseBehavior = OldMouseBehavior
 			WindowConfig.CloseCallback()
-		else MainWindow.Visible = true
+		else 
+			MainWindow.Visible = true
 			UIHidden = false
 			OldMouseBehavior = UserInputService.MouseBehavior
 			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 		end
 	end)
 
-	AddConnection(MinimizeBtn.MouseButton1Up, function()-- 最小化按钮
-		if Minimized then
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 615, 0, 344)
-			}):Play()
-			MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
-			task.wait(0.02)
-			MainWindow.ClipsDescendants = false
-			WindowStuff.Visible = true
-			WindowTopBarLine.Visible = true
-		else
-			MainWindow.ClipsDescendants = true
-			WindowTopBarLine.Visible = false
-			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
-
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, WindowName.TextBounds.X + 140, 0, 50)
-			}):Play()
-			task.wait(0.1)
-			WindowStuff.Visible = false
-		end
-		Minimized = not Minimized
-	end)
-
-	if not OrionLib.SaveCfg then OrionLib:MakeNotification({--Notify
+	if not OrionLib.SaveCfg then OrionLib:MakeNotification({-- 当未开启保存配置时提醒
 		Name = 'OrionLib.Configuration.Name',
 		Content = 'OrionLib.Configuration.NotSaveCfg.Content',
-		Time = 5
-		}) end
+		Image = Icons['alert-triangle'],
+		Time = 5}) 
+	end
 
 	local TabFunction = {}
+
 	function TabFunction:MakeTab(TabConfig)
 		TabConfig = TabConfig or {}
 		TabConfig.Name = TabConfig.Name or "Tab"
 		TabConfig.Icon = TabConfig.Icon or ""
 
-		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
+		local TabButton = not TabConfig['IsSetting'] and SetChildren(SetProps(MakeElement("Button"), {
 			Size = UDim2.new(1, 0, 0, 30),
 			Parent = TabHolder
 		}), {AddThemeObject(SetProps(MakeElement("Image", TabConfig.Icon), {
@@ -785,12 +811,12 @@ function OrionLib:MakeWindow(WindowConfig)
 			ImageTransparency = 0.4,
 			Name = "Ico"
 		}), "Text"), AddThemeObject(SetProps(MakeElement("Label", TabConfig.Name, 14), {
-				Size = UDim2.new(1, -35, 1, 0),
-				Position = UDim2.new(0, 35, 0, 0),
-				Font = Enum.Font.GothamSemibold,
-				TextTransparency = 0.4,
-				Name = "Title"
-			}), "Text")})
+			Size = UDim2.new(1, -35, 1, 0),
+			Position = UDim2.new(0, 35, 0, 0),
+			Font = Enum.Font.GothamSemibold,
+			TextTransparency = 0.4,
+			Name = "Title"
+		}), "Text")}) or SettingBtn
 
 		local Container = AddThemeObject(SetChildren(SetProps(
 			MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
@@ -805,39 +831,39 @@ function OrionLib:MakeWindow(WindowConfig)
 			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
 		end)
 
-		if FirstTab then
+		if FirstTab and not TabConfig['IsSetting'] then
 			FirstTab = false
-			TabFrame.Ico.ImageTransparency = 0
-			TabFrame.Title.TextTransparency = 0
-			TabFrame.Title.Font = Enum.Font.GothamBlack
+			TabButton.Ico.ImageTransparency = 0
+			TabButton.Title.TextTransparency = 0
+			TabButton.Title.Font = Enum.Font.GothamBlack
 			Container.Visible = true
 		end
 
-		AddConnection(TabFrame.MouseButton1Click, function()
+		AddConnection(TabButton.MouseButton1Click, function()
 			for _, Tab in next, TabHolder:GetChildren() do
-				if Tab:IsA("TextButton") then
-					Tab.Title.Font = Enum.Font.GothamSemibold
-					TweenService:Create(Tab.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-						{
-							ImageTransparency = 0.4
-						}):Play()
-					TweenService:Create(Tab.Title,
-						TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-							TextTransparency = 0.4
-						}):Play()
-				end
+				if not Tab:IsA("TextButton") then continue end
+				TweenService:Create(Tab.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+					{
+						ImageTransparency = 0.4
+					}):Play()
+				TweenService:Create(Tab.Title,
+					TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+						TextTransparency = 0.4
+					}):Play()
+				Tab.Title.Font = Enum.Font.GothamSemibold
 			end
 			for _, ItemContainer in next, MainWindow:GetChildren() do
 				if ItemContainer.Name == "ItemContainer" then ItemContainer.Visible = false	end
 			end
-			TweenService:Create(TabFrame.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Container.Visible = true
+			if TabConfig['IsSetting'] then return end
+			TweenService:Create(TabButton.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				ImageTransparency = 0
 			}):Play()
-			TweenService:Create(TabFrame.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			TweenService:Create(TabButton.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				TextTransparency = 0
 			}):Play()
-			TabFrame.Title.Font = Enum.Font.GothamBlack
-			Container.Visible = true
+			TabButton.Title.Font = Enum.Font.GothamBlack
 		end)
 
 		local function GetElements(ItemParent)
@@ -1836,6 +1862,45 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		return ElementFunction
 	end
+
+	local function SetSettingTab(Window)
+		local Themes = {
+			['OrionLib.Setting.UItheme.Dark'] = "Dark",
+			['OrionLib.Setting.UItheme.Light'] = "Light"
+		}
+		local Languages = {
+			['中文'] = "zh-cn",
+			['English'] = "en-us"
+		}
+		local Setting = Window:MakeTab({IsSetting = true})
+		Setting:AddButton({
+			Name = 'OrionLib.Setting.CloseUI.Name',
+			Callback = function() OrionLib:Destroy() end
+		})
+		Setting:AddDropdown({
+			Name = 'OrionLib.Setting.UItheme.Name',
+			Default = 'OrionLib.Setting.UItheme.Dark',
+			Options = {'OrionLib.Setting.UItheme.Dark','OrionLib.Setting.UItheme.Light'},
+			Callback = function(Value)
+				print(Value)
+				if not Themes[Value] then return end
+				OrionLib:SetTheme(Themes[Value])
+			end    
+		})
+		Setting:AddDropdown({
+			Name = "语言/Language",
+			Default = "中文",
+			Options = {"中文","English"},
+			Callback = function(Value) OrionLib:SetLanguage(Languages[Value]) end    
+		})
+		Setting:AddSection({Name = 'OrionLib.Setting.ServerInfo.Name'})
+		Setting:AddLabel('OrionLib.Setting.GameId.Name')
+		Setting:AddLabel('OrionLib.Setting.PlaceId.Name')
+		Setting:AddParagraph('OrionLib.Setting.JobId.Name',game.JobId)
+		Setting:AddLabel('OrionLib.Setting.GameVersion.Name')
+	end
+
+	SetSettingTab(TabFunction)
 	table.insert(self.MainWindows,TabFunction)
 	return TabFunction
 end
