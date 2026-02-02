@@ -1,5 +1,4 @@
 if not OrionLib then OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))() end--lib
-loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/Other-scripts/Setting.lua'))()-- UI Setting
 local Window = OrionLib:MakeWindow({--Main Window
     Name = "Title of the library",
     SaveConfig = true,
