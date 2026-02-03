@@ -660,11 +660,12 @@ function OrionLib:MakeWindow(WindowConfig)
 		Size = UDim2.new(1, 0, 0, 50),
 		Name = "TopBar"
 	}), {WindowTitle, WindowTopBarLine,
-		AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
+		AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(163, 162, 165), 0, 7), {
 			Name = 'SettingButton',
+			BackgroundTransparency = 1,
 			Size = UDim2.new(0, 35, 0, 30),
 			Position = UDim2.new(0.9, -100, 0, 10)
-	}), {AddThemeObject(MakeElement("Stroke"), "Stroke"),SettingBtn}), "Second"),
+	}), {AddThemeObject(MakeElement("Stroke"), "Stroke"),SettingBtn}), "Text"),
 		AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
 		Name = 'Buttons',
 		Size = UDim2.new(0, 70, 0, 30),
@@ -760,7 +761,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			WindowTopBarLine.Visible = false
 			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
 			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, WindowTitle.TextBounds.X + 140, 0, 50)
+				Size = UDim2.new(0, WindowTitle.TextBounds.X + 180, 0, 50)
 			}):Play()
 			task.wait(0.1)
 			WindowStuff.Visible = false
@@ -852,11 +853,18 @@ function OrionLib:MakeWindow(WindowConfig)
 					}):Play()
 				Tab.Title.Font = Enum.Font.GothamSemibold
 			end
+			TweenService:Create(SettingBtn.Parent, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 1
+			}):Play()
 			for _, ItemContainer in next, MainWindow:GetChildren() do
 				if ItemContainer.Name == "ItemContainer" then ItemContainer.Visible = false	end
 			end
 			Container.Visible = true
-			if TabConfig['IsSetting'] then return end
+			if TabConfig['IsSetting'] then 
+				TweenService:Create(SettingBtn.Parent, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+					BackgroundTransparency = 0.7
+				}):Play(); return 
+			end
 			TweenService:Create(TabButton.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				ImageTransparency = 0
 			}):Play()
