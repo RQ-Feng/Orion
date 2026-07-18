@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
-local UIParent = gethui and gethui() or game.CoreGui or LocalPlayer.PlayerGui
+local UIParent = gethui and gethui() or if pcall(function(...) local check = game.CoreGui end) then game.CoreGui else LocalPlayer.PlayerGui
 local IsOnMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local OldMouseBehavior = Enum.MouseBehavior.Default
 local InputKeys = {--输入键
@@ -66,6 +66,7 @@ for _, Interface in ipairs(UIParent:GetChildren()) do if Interface.Name == 'Orio
 local OrionUI = Instance.new("ScreenGui")
 OrionUI.Name = "OrionUI"
 OrionUI.Parent = UIParent
+OrionUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 function OrionLib:IsRunning() return OrionUI.Parent ~= nil and true or false end -- IsRunning函数
 
@@ -144,12 +145,12 @@ end
 
 --Theme
 local function ReturnColorProperty(Object)
-	if Object:IsA("Frame") or Object:IsA("TextButton") then return "BackgroundColor3"
+	if Object:IsA("Frame") or Object:IsA("TextButton") or Object:IsA("CanvasGroup") then return "BackgroundColor3"
 	elseif Object:IsA("ScrollingFrame") then return "ScrollBarImageColor3"
 	elseif Object:IsA("UIStroke") then return "Color"
 	elseif Object:IsA("TextLabel") or Object:IsA("TextBox") then return "TextColor3"
 	elseif Object:IsA("ImageLabel") or Object:IsA("ImageButton") then return "ImageColor3"
-	else return end
+	else return error("ReturnColorProperty execute failed when return " .. Object.ClassName .. "'s color property!") end
 end
 
 local function AddThemeObject(Object, Type)--添加UI对象到对应的主题table
@@ -279,6 +280,16 @@ end)
 
 CreateElement("RoundFrame", function(Color, Scale, Offset)
 	local Frame = Create("Frame", {
+		BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
+		BorderSizePixel = 0
+	}, {Create("UICorner", {
+		CornerRadius = UDim.new(Scale, Offset)
+	})})
+	return Frame
+end)
+
+CreateElement("RoundCanva", function(Color, Scale, Offset)
+	local Frame = Create("CanvasGroup", {
 		BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
 		BorderSizePixel = 0
 	}, {Create("UICorner", {
@@ -528,7 +539,6 @@ function OrionLib:MakeWindow(WindowConfig)
 	WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
 	WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
 	WindowConfig.Icon = WindowConfig.Icon or "rbxassetid://8834748103"
-	WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://8834748103"
 
 	if WindowConfig.SaveConfig then--File Functions Check
 		local filefuncs = {'isfolder', 'makefolder', 'writefile','readfile'}
@@ -649,7 +659,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		Position = UDim2.new(0, 0, 1, -1)
 	}), "Stroke")
 
-	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10),
+	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundCanva", Color3.fromRGB(255, 255, 255), 0, 10),
 		{
 			Name = 'MainWindow',
 			Parent = OrionUI,
@@ -688,45 +698,76 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	local function LoadSequence()--Intro function
 		MainWindow.Visible = false
-		local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
+		local LoadSequenceCanva = AddThemeObject(SetChildren(SetProps(MakeElement("RoundCanva", Color3.fromRGB(255, 255, 255), 0, 10), {
+			Name = "LoadSequence",
+			GroupTransparency = 1,
 			Parent = OrionUI,
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 0, 0.4, 0),
-			Size = UDim2.new(0, 28, 0, 28),
-			ImageColor3 = Color3.fromRGB(255, 255, 255),
-			ImageTransparency = 1
-		})
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			Size = UDim2.new(0, 105, 0, 105),
+		}), {Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 15),
+			PaddingRight = UDim.new(0, 15),
+			PaddingBottom = UDim.new(0, 15),
+			PaddingTop = UDim.new(0, 15)
+		})}), "Main") 
+		
+		local LoadSequenceLogo = AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon), {
+			Parent = LoadSequenceCanva,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 0, 0.5, 0),
+			Size = UDim2.new(0, 75, 0, 75),
+		}),"Text")
 
-		local LoadSequenceText = SetProps(MakeElement("Label", WindowConfig.IntroText, 14), {
-			Parent = OrionUI,
-			Name = 'IntroLabel',
-			Size = UDim2.new(1, 0, 1, 0),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, 19, 0.5, 0),
+		local LoadSequenceText = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.IntroText, 28), {
+			Parent = LoadSequenceCanva,
+			Size = UDim2.new(0, 39, 1, 0),
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 90, 0.5, 0),
+			AutomaticSize = Enum.AutomaticSize.XY,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Font = Enum.Font.GothamBold,
-			TextTransparency = 1
-		})
+		}),"Text")
 
-		TweenService:Create(LoadSequenceLogo, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			ImageTransparency = 0,
-			Position = UDim2.new(0.5, 0, 0.5, 0)
-		}):Play()
-		task.wait(0.8)
-		TweenService:Create(LoadSequenceLogo, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0.5, -(LoadSequenceText.TextBounds.X / 2), 0.5, 0)
-		}):Play()
-		task.wait(0.3)
-		TweenService:Create(LoadSequenceText, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			TextTransparency = 0
-		}):Play()
+		local function updateInfo(imageid,newString)
+			newString = newString or ''
+			local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			local UIPadding = LoadSequenceCanva:FindFirstChild("UIPadding")
+			
+			local TextFadeOut = TweenService:Create(LoadSequenceText, tweenInfo, {TextTransparency = 1})
+			local ImageFadeOut = TweenService:Create(LoadSequenceLogo, tweenInfo, {ImageTransparency = LoadSequenceLogo.Image ~= imageid and 1 or 0})
+			TextFadeOut:Play()
+			ImageFadeOut:Play()
+			ImageFadeOut.Completed:Wait()
+
+			LoadSequenceLogo.Image = imageid
+			LoadSequenceText.Text = newString
+			local calculatedSize = game:GetService("TextService"):GetTextSize(newString, LoadSequenceText.TextSize, LoadSequenceText.Font,Vector2.new(math.huge,1000))
+			local CanvasX = LoadSequenceText.Position.X.Offset + UIPadding.PaddingLeft.Offset + (calculatedSize.X ~= 0 and calculatedSize.X + UIPadding.PaddingRight.Offset or 0)
+
+			local sizeTween = TweenService:Create(LoadSequenceCanva, tweenInfo, {Size = UDim2.new(0, CanvasX, 0, 105)})
+			sizeTween:Play()
+			sizeTween.Completed:Wait()
+			
+			local TextFadeIn = TweenService:Create(LoadSequenceText, tweenInfo, {TextTransparency = 0})
+			local ImageFadeIn = TweenService:Create(LoadSequenceLogo, tweenInfo, {ImageTransparency = 0})
+			TextFadeIn:Play()
+			ImageFadeIn:Play()
+			ImageFadeIn.Completed:Wait()
+		end
+
+		local tween = TweenService:Create(LoadSequenceCanva, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0})
+		tween:Play()
+		tween.Completed:Wait()
+		updateInfo(WindowConfig.Icon,WindowConfig.IntroText)
 		task.wait(2)
-		TweenService:Create(LoadSequenceText, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			TextTransparency = 1
-		}):Play()
+		updateInfo("rbxassetid://8834748103","Powered by OrionLib")
+		task.wait(2)
+		local tween = TweenService:Create(LoadSequenceCanva, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 1})
+		tween:Play()
+		tween.Completed:Wait()
+		LoadSequenceCanva:Destroy()
 		MainWindow.Visible = true
-		LoadSequenceLogo:Destroy()
-		LoadSequenceText:Destroy()
 	end; if WindowConfig.IntroEnabled then LoadSequence() end--Intro
 
 	AddDraggingFunctionality(DragPoint, MainWindow)
