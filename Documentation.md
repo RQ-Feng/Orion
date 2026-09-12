@@ -72,6 +72,27 @@ Name = <string> - The name of the section.
 ```
 You can add elements to sections the same way you would add them to a tab normally.
 
+## Showing / hiding an element
+Every element (button, toggle, slider, dropdown, bind, textbox, colorpicker, label, paragraph, section) accepts a `Visible` argument (default `true`) at creation, and returns an object with `:SetVisible(bool)` for toggling it at runtime.
+```lua
+local Toggle = Tab:AddToggle({
+	Name = "Toggle",
+	Visible = true
+})
+
+Toggle:SetVisible(false) -- hide
+Toggle:SetVisible(true)  -- show
+```
+
+--[[
+Visible = <bool> - Whether the element is shown. Defaults to true.
+]]
+For label / paragraph the `Visible` argument goes after the text arguments:
+```lua
+Tab:AddLabel("Label", false)
+Tab:AddParagraph("Paragraph", "Paragraph Content", false)
+```
+
 ## Making a Notification
 ```lua
 local Notification = OrionLib:MakeNotification({

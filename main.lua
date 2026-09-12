@@ -61,7 +61,7 @@ if not suc then pcall(function()
 end); return end
 
 -- 删除之前加载过的OrionLib
-for _, Interface in ipairs(UIParent:GetChildren()) do if Interface.Name == 'OrionUI' then Interface:Destroy() end end
+for _, Interface in pairs(UIParent:GetChildren()) do if Interface.Name == 'OrionUI' then Interface:Destroy() end end
 
 local OrionUI = Instance.new("ScreenGui")
 OrionUI.Name = "OrionUI"
@@ -109,11 +109,15 @@ local function SetLocalizationString(TextLabel:TextLabel,...)
 	if not TextLabel:IsA('TextLabel') or type(originalString) ~= 'string' then return end
 
     local count = 0;for _ in string.gmatch(originalString,string.gsub("%s","([%%%[%]])","%%%1")) do count = count + 1 end
-	if #{...} ~= count then return originalString end
+	if #{...} ~= count then TextLabel.Text = originalString; return originalString end
 	
 	local _suc,LocalizationString = pcall(function() return GetLocalizationString(originalString) end)
-	if not LocalizationString then return originalString end
-	TextLabel.Text = LocalizationString:format(...)
+	if not LocalizationString then TextLabel.Text = originalString; return originalString end
+	if select('#',...) > 0 then
+		local _suc2,Formatted = pcall(string.format,LocalizationString,...)
+		LocalizationString = _suc2 and Formatted or originalString
+	end
+	TextLabel.Text = LocalizationString
 	return
 end
 
@@ -176,8 +180,12 @@ local function UnpackColor(Color) return Color3.fromRGB(Color.R, Color.G, Color.
 --Config
 local Config = ''
 
+local function GetConfigPath(CfgName)
+	return OrionLib.Folder .. "/" .. (CfgName or game.PlaceId) .. ".cfg"
+end
+
 function OrionLib:LoadConfig(CfgName)
-	Config = OrionLib.Folder .. "/" .. (CfgName or game.PlaceId) .. ".cfg"
+	Config = GetConfigPath(CfgName)
 	if not OrionLib.SaveCfg or not isfile(Config) then return end
 	local LoadSuc,_ = pcall(function()
 		local Data = HttpService:JSONDecode(readfile(Config))
@@ -200,6 +208,7 @@ end
 
 local function SaveCfg()
 	if not OrionLib.SaveCfg then return end
+	if Config == '' then Config = GetConfigPath() end
 	local Data = {}
 	for flagName, flagConfig in pairs(OrionLib.Flags) do
 		if not flagConfig.Save then continue end
@@ -918,12 +927,14 @@ function OrionLib:MakeWindow(WindowConfig)
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
 
-			function ElementFunction:AddLabel(Text)
+			function ElementFunction:AddLabel(Text, Visible)
+				Visible = Visible ~= false
 				local LabelFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Name = 'Label',
 						Size = UDim2.new(1, 0, 0, 30),
 						BackgroundTransparency = 0.7,
+						Visible = Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
@@ -932,8 +943,17 @@ function OrionLib:MakeWindow(WindowConfig)
 						Name = "Content"
 					}), "Text"), AddThemeObject(MakeElement("Stroke"), "Stroke")}), "Second")
 
-				local LabelFunction = {}
-				function LabelFunction:Set(ToChange) LabelFrame.Content.Text = ToChange	end
+				local LabelFunction = {
+					Visible = Visible
+				}
+				function LabelFunction:Set(ToChange)
+					LabelFrame.Content:SetAttribute('sourceString',ToChange)
+					SetLocalizationString(LabelFrame.Content)
+				end
+				function LabelFunction:SetVisible(Value)
+					LabelFunction.Visible = Value ~= false
+					LabelFrame.Visible = LabelFunction.Visible
+				end
 				return LabelFunction
 			end
 
@@ -944,15 +964,17 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 			end
 
-			function ElementFunction:AddParagraph(Text, Content)
+			function ElementFunction:AddParagraph(Text, Content, Visible)
 				Text = Text or "Text"
 				Content = Content or "Content"
+				Visible = Visible ~= false
 
 				local ParagraphFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 30),
 						BackgroundTransparency = 0.7,
 						Name = 'Paragraph',
+						Visible = Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
 						Size = UDim2.new(1, -12, 0, 14),
@@ -976,10 +998,16 @@ function OrionLib:MakeWindow(WindowConfig)
 					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
 				end)
 
-				local ParagraphFunction = {}
+				local ParagraphFunction = {
+					Visible = Visible
+				}
 				function ParagraphFunction:Set(ToChange)
 					ParagraphFrame.Content:SetAttribute('sourceString',ToChange)
 					SetLocalizationString(ParagraphFrame.Content)
+				end
+				function ParagraphFunction:SetVisible(Value)
+					ParagraphFunction.Visible = Value ~= false
+					ParagraphFrame.Visible = ParagraphFunction.Visible
 				end
 				return ParagraphFunction
 			end
@@ -990,8 +1018,11 @@ function OrionLib:MakeWindow(WindowConfig)
 				ButtonConfig.Callback = ButtonConfig.Callback or function() end
 				ButtonConfig.ClickTwice = ButtonConfig.ClickTwice or false
 				ButtonConfig.Icon = ButtonConfig.Icon or "rbxassetid://3944703587"
+				ButtonConfig.Visible = ButtonConfig.Visible ~= false
 
-				local Button = {}
+				local Button = {
+					Visible = ButtonConfig.Visible
+				}
 				local CooldownTask
 				local CanClick = if ButtonConfig.ClickTwice then false else true
 
@@ -1000,6 +1031,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local ButtonFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 33),
+						Visible = ButtonConfig.Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
@@ -1044,12 +1076,12 @@ function OrionLib:MakeWindow(WindowConfig)
 						ButtonFrame.Content.Text = GetLocalizationString('OrionLib.Button.ClickTwice.Tip')
 						CooldownTask = task.spawn(function()
 							task.wait(1)
-							ButtonFrame.Content.Text = ButtonConfig.Name
+							ButtonFrame.Content.Text = GetLocalizationString(ButtonConfig.Name)
 							CanClick = false
 						end); return
 					end
 					if CooldownTask then task.cancel(CooldownTask) end
-					ButtonFrame.Content.Text = ButtonConfig.Name
+					ButtonFrame.Content.Text = GetLocalizationString(ButtonConfig.Name)
 					CanClick = if ButtonConfig.ClickTwice then false else true
 					CatchError(ButtonConfig)
 				end)
@@ -1066,6 +1098,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Button:Set(ButtonText) ButtonFrame.Content.Text = GetLocalizationString(ButtonText) or ButtonText end
 
+				function Button:SetVisible(Value)
+					Button.Visible = Value ~= false
+					ButtonFrame.Visible = Button.Visible
+				end
+
 				return Button
 			end
 
@@ -1077,10 +1114,12 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(9, 99, 195)
 				ToggleConfig.Flag = ToggleConfig.Flag or nil
 				ToggleConfig.Save = ToggleConfig.Save or false
+				ToggleConfig.Visible = ToggleConfig.Visible ~= false
 
 				local Toggle = {
 					Value = ToggleConfig.Default,
-					Save = ToggleConfig.Save
+					Save = ToggleConfig.Save,
+					Visible = ToggleConfig.Visible
 				}
 				
 				if ToggleConfig.Flag then OrionLib.Flags[ToggleConfig.Flag] = Toggle end
@@ -1108,6 +1147,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local ToggleFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
+						Visible = ToggleConfig.Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
@@ -1137,6 +1177,11 @@ function OrionLib:MakeWindow(WindowConfig)
 						}):Play()
 					if Loading and not Value then return end
 					CatchError(ToggleConfig,Toggle.Value)
+				end
+
+				function Toggle:SetVisible(Value)
+					Toggle.Visible = Value ~= false
+					ToggleFrame.Visible = Toggle.Visible
 				end
 
 				Toggle:Set(Toggle.Value,true)
@@ -1196,10 +1241,12 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(9, 149, 98)
 				SliderConfig.Flag = SliderConfig.Flag or nil
 				SliderConfig.Save = SliderConfig.Save or false
+				SliderConfig.Visible = SliderConfig.Visible ~= false
 
 				local Slider = {
 					Value = SliderConfig.Default,
-					Save = SliderConfig.Save
+					Save = SliderConfig.Save,
+					Visible = SliderConfig.Visible
 				}
 				local Dragging = false
 
@@ -1234,6 +1281,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local SliderFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
 						Size = UDim2.new(1, 0, 0, 65),
+						Visible = SliderConfig.Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 0, 14),
@@ -1274,6 +1322,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					CatchError(SliderConfig,self.Value)
 				end
 
+				function Slider:SetVisible(Value)
+					Slider.Visible = Value ~= false
+					SliderFrame.Visible = Slider.Visible
+				end
+
 				Slider:Set(Slider.Value,true)
 				return Slider
 			end
@@ -1282,18 +1335,20 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig = DropdownConfig or {}
 				DropdownConfig.Name = DropdownConfig.Name or "Dropdown"
 				DropdownConfig.Options = DropdownConfig.Options or {}
-				DropdownConfig.Required = if DropdownConfig.Required ~= nil then DropdownConfig.Required else true
+				DropdownConfig.Required = DropdownConfig.Required ~= false
 				DropdownConfig.Default = DropdownConfig.Default or DropdownConfig.Required and "..."
 				DropdownConfig.Multiple = DropdownConfig.Multiple or false
 				DropdownConfig.Callback = DropdownConfig.Callback or function() end
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
 				DropdownConfig.Save = DropdownConfig.Save or false
+				DropdownConfig.Visible = DropdownConfig.Visible ~= false
 				
 				local Dropdown = {
 					Value = DropdownConfig.Default,
 					Options = DropdownConfig.Options,
 					Buttons = {},
-					Save = DropdownConfig.Save
+					Save = DropdownConfig.Save,
+					Visible = DropdownConfig.Visible
 				}
 
 				local MaxDisplayElements = 5
@@ -1322,6 +1377,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					SetProps(MakeElement("RoundFrame", Color3.fromHSV(0, 0, 1), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
 						Name = 'Dropdown',
+						Visible = DropdownConfig.Visible,
 						Parent = ItemParent,
 						ClipsDescendants = true
 					}), {DropdownContainer, SetProps(SetChildren(MakeElement("TFrame"),
@@ -1441,6 +1497,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					if DropdownConfig.Multiple then return CatchError(DropdownConfig,unpack(SourceOptions)) else return CatchError(DropdownConfig,Dropdown.Value) end
 				end
 
+				function Dropdown:SetVisible(Value)
+					Dropdown.Visible = Value ~= false
+					DropdownFrame.Visible = Dropdown.Visible
+				end
+
 				--Toggle tween
 				AddConnection(Click.MouseButton1Click, function()
 					Toggled = not Toggled
@@ -1468,12 +1529,14 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				BindConfig.Flag = BindConfig.Flag or nil
 				BindConfig.Save = BindConfig.Save or false
+				BindConfig.Visible = BindConfig.Visible ~= false
 
 				local Bind = {
 					Value = Enum.KeyCode.Unknown,
 					Binding = false,
 					Holding = false,
-					Save = BindConfig.Save
+					Save = BindConfig.Save,
+					Visible = BindConfig.Visible
 				}
 
 				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
@@ -1495,6 +1558,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
 						Name = 'Bind',
+						Visible = BindConfig.Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
@@ -1509,6 +1573,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					Bind.Value = Key or Bind.Value
 					Bind.Value = Bind.Value.Name or Bind.Value
 					BindBox.Value.Text = Bind.Value
+				end
+
+				function Bind:SetVisible(Value)
+					Bind.Visible = Value ~= false
+					BindFrame.Visible = Bind.Visible
 				end
 
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
@@ -1595,6 +1664,11 @@ function OrionLib:MakeWindow(WindowConfig)
 				TextboxConfig.TextDisappear = TextboxConfig.TextDisappear or false
 				TextboxConfig.Callback = TextboxConfig.Callback or function()
 				end
+				TextboxConfig.Visible = TextboxConfig.Visible ~= false
+
+				local Textbox = {
+					Visible = TextboxConfig.Visible
+				}
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.new(1, 0, 1, 0)
@@ -1622,6 +1696,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local TextboxFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
+						Visible = TextboxConfig.Visible,
 						Parent = ItemParent
 					}), {AddThemeObject(SetProps(MakeElement("Label", TextboxConfig.Name, 15), {
 						Size = UDim2.new(1, -12, 1, 0),
@@ -1685,6 +1760,13 @@ function OrionLib:MakeWindow(WindowConfig)
 								OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)
 						}):Play()
 				end)
+
+				function Textbox:SetVisible(Value)
+					Textbox.Visible = Value ~= false
+					TextboxFrame.Visible = Textbox.Visible
+				end
+
+				return Textbox
 			end
 
 			function ElementFunction:AddColorpicker(ColorpickerConfig)
@@ -1695,13 +1777,15 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
 				ColorpickerConfig.Save = ColorpickerConfig.Save or false
+				ColorpickerConfig.Visible = ColorpickerConfig.Visible ~= false
 
 				local ColorH, ColorS, ColorV = 1, 1, 1
 				local ColorInput,HueInput
 				local Colorpicker = {
 					Value = ColorpickerConfig.Default,
 					Toggled = false,
-					Save = ColorpickerConfig.Save
+					Save = ColorpickerConfig.Save,
+					Visible = ColorpickerConfig.Visible
 				}
 				
 				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
@@ -1775,6 +1859,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local ColorpickerFrame = AddThemeObject(SetChildren(
 					SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 						Size = UDim2.new(1, 0, 0, 38),
+						Visible = ColorpickerConfig.Visible,
 						Parent = ItemParent
 					}), {SetProps(SetChildren(MakeElement("TFrame"),
 						{AddThemeObject(SetProps(MakeElement("Label", ColorpickerConfig.Name, 15), {
@@ -1869,6 +1954,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					CatchError(ColorpickerConfig,Colorpicker.Value)
 				end
 
+				function Colorpicker:SetVisible(Value)
+					Colorpicker.Visible = Value ~= false
+					ColorpickerFrame.Visible = Colorpicker.Visible
+				end
+
 				Colorpicker:Set(Colorpicker.Value,true)
 				return Colorpicker
 			end
@@ -1880,9 +1970,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		function ElementFunction:AddSection(SectionConfig)
 			SectionConfig.Name = SectionConfig.Name or "Section"
+			SectionConfig.Visible = SectionConfig.Visible ~= false
 
 			local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(1, 0, 0, 26),
+				Visible = SectionConfig.Visible,
 				Parent = Container
 			}), {AddThemeObject(SetProps(MakeElement("Label", SectionConfig.Name, 14), {
 				Size = UDim2.new(1, -12, 0, 16),
@@ -1902,8 +1994,14 @@ function OrionLib:MakeWindow(WindowConfig)
 				SectionFrame.Holder.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y)
 			end)
 
-			local SectionFunction = {}
+			local SectionFunction = {
+				Visible = SectionConfig.Visible
+			}
 			for i, v in next, GetElements(SectionFrame.Holder) do SectionFunction[i] = v end
+			function SectionFunction:SetVisible(Value)
+				SectionFunction.Visible = Value ~= false
+				SectionFrame.Visible = SectionFunction.Visible
+			end
 			return SectionFunction
 		end
 

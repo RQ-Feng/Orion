@@ -1,43 +1,43 @@
 if not OrionLib then OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RQ-Feng/Orion/refs/heads/main/main.lua'))() end--lib
 local Window = OrionLib:MakeWindow({--Main Window
-    Name = "Title of the library",
-    SaveConfig = true,
+    Name = "OrionTest.Window.Name",
+    SaveConfig = false,
     ConfigFolder = "OrionTest"
 })
 OrionLib:MakeNotification({
-    Name = "Notify on load",
-    Content = "Notification content... what will it say??",
+    Name = "OrionTest.Notification.Load.Name",
+    Content = "OrionTest.Notification.Load.Content",
     Image = "rbxassetid://4483345998",
     Time = 5
 })
 --Tab
 local Tab = Window:MakeTab({
-	Name = "Tab 1",
+	Name = "OrionTest.Tab.Main.Name",
 	Icon = "rbxassetid://4483345998"
 })
 --Section
 local Section = Tab:AddSection({
-	Name = "Section"
+	Name = "OrionTest.Section.Main.Name"
 })
 --Button
 Tab:AddButton({
-	Name = "Make a notify",
+	Name = "OrionTest.Button.MakeNotify.Name",
 	Callback = function()
       	OrionLib:MakeNotification({
-            Name = "Notify by Button",
-            Content = "Notification content",
+            Name = "OrionTest.Notification.Button.Name",
+            Content = "OrionTest.Notification.Content.Default",
             Image = "rbxassetid://4483345998",
             Time = 5
         })
   	end    
 })
 Tab:AddButton({
-	Name = "Make a notify but need click twice",
+	Name = "OrionTest.Button.ClickTwice.Name",
 	ClickTwice = true,
 	Callback = function()
       	OrionLib:MakeNotification({
-            Name = "Notify by other button",
-            Content = "Notification content",
+            Name = "OrionTest.Notification.OtherButton.Name",
+            Content = "OrionTest.Notification.Content.Default",
             Image = "rbxassetid://4483345998",
             Time = 5
         })
@@ -45,89 +45,89 @@ Tab:AddButton({
 })
 --Toggle
 Tab:AddToggle({
-	Name = "This is a toggle!",
+	Name = "OrionTest.Toggle.First.Name",
 	Default = false,
 	Callback = function(Value)
 		print(Value)
 	end    
 })
 local CoolToggle = Tab:AddToggle({
-	Name = "toggle 2",
+	Name = "OrionTest.Toggle.Second.Name",
 	Default = false,
 	Callback = function(Value)
 		print(Value)
 	end    
 })
 Tab:AddButton({
-	Name = "Set toggle 2 to true",
+	Name = "OrionTest.Button.SetToggleTrue.Name",
 	Callback = function()
       	CoolToggle:Set(true)
   	end    
 })
 --Colorpicker
 local ColorPicker = Tab:AddColorpicker({
-	Name = "Colorpicker",
+	Name = "OrionTest.Colorpicker.Main.Name",
 	Default = Color3.fromRGB(255, 0, 0),
 	Callback = function(Value)
 		print(Value)
 	end	  
 })
 Tab:AddButton({
-	Name = "Set colorpicker to white",
+	Name = "OrionTest.Button.SetColorpickerWhite.Name",
 	Callback = function()
       	ColorPicker:Set(Color3.fromRGB(255,255,255))
   	end    
 })
 --Slider
 local Slider = Tab:AddSlider({
-	Name = "Slider",
+	Name = "OrionTest.Slider.Main.Name",
 	Min = 0,
 	Max = 20,
 	Default = 5,
 	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
-	ValueName = "bananas",
+	ValueName = "OrionTest.Slider.ValueName",
 	Callback = function(Value)
 		print(Value)
 	end    
 })
 Tab:AddButton({
-	Name = "Set slider to 2",
+	Name = "OrionTest.Button.SetSliderTwo.Name",
 	Callback = function()
       	Slider:Set(2)
   	end    
 })
 --Label
-local CoolLabel = Tab:AddLabel("Label")
+local CoolLabel = Tab:AddLabel("OrionTest.Label.Main.Default")
 Tab:AddButton({
-	Name = "Set lable to 'Label New!'",
+	Name = "OrionTest.Button.SetLabelNew.Name",
 	Callback = function()
-      	CoolLabel:Set("Label New!")
+      	CoolLabel:Set("OrionTest.Label.New")
   	end    
 })
 Tab:AddButton({
-	Name = "Set lable to default",
+	Name = "OrionTest.Button.SetLabelDefault.Name",
 	Callback = function()
-      	CoolLabel:Set("Label")
+      	CoolLabel:Set("OrionTest.Label.Main.Default")
   	end    
 })
 --Paragraph
-local CoolParagraph = Tab:AddParagraph("Paragraph","Paragraph Content")
+local CoolParagraph = Tab:AddParagraph("OrionTest.Paragraph.Main.Title","OrionTest.Paragraph.Main.Content")
 Tab:AddButton({
-	Name = "Set paragraph to 'Paragraph New!'",
+	Name = "OrionTest.Button.SetParagraphNew.Name",
 	Callback = function()
-        CoolParagraph:Set("Paragraph New!", "New Paragraph Content!")
+        CoolParagraph:Set("OrionTest.Paragraph.New.Title", "OrionTest.Paragraph.New.Content")
   	end    
 })
 Tab:AddButton({
-	Name = "Set paragraph to default",
+	Name = "OrionTest.Button.SetParagraphDefault.Name",
 	Callback = function()
-        CoolParagraph:Set("Paragraph", "Paragraph Content!")
+        CoolParagraph:Set("OrionTest.Paragraph.Main.Title", "OrionTest.Paragraph.Default.Content")
   	end    
 })
 --Textbox
 Tab:AddTextbox({
-	Name = "Textbox",
+	Name = "OrionTest.Textbox.Main.Name",
 	Default = "default box input",
 	TextDisappear = true,
 	Callback = function(Value)
@@ -136,7 +136,7 @@ Tab:AddTextbox({
 })
 --Bind
 Tab:AddBind({
-	Name = "Bind",
+	Name = "OrionTest.Bind.Main.Name",
 	Default = Enum.KeyCode.E,
 	Hold = false,
 	Callback = function()
@@ -145,34 +145,63 @@ Tab:AddBind({
 })
 --Dropdown
 local Dropdown = Tab:AddDropdown({
-	Name = "Dropdown",
-	Default = "1",
-	Options = {"1", "2"},
+	Name = "OrionTest.Dropdown.Main.Name",
+	Default = "OrionTest.Dropdown.Option.One",
+	Options = {"OrionTest.Dropdown.Option.One", "OrionTest.Dropdown.Option.Two"},
 	Callback = function(Value)
 		print(Value)
 	end    
 })
 Tab:AddButton({
-	Name = "Refresh dropdown to idk",
+	Name = "OrionTest.Button.RefreshDropdown.Name",
 	Callback = function()
-        Dropdown:Refresh({'idk',tostring(math.random(1,50))},true)
+        Dropdown:Refresh({'OrionTest.Dropdown.Option.Idk',tostring(math.random(1,50))},true)
   	end    
 })
 Tab:AddButton({
-	Name = "Set dropdown to idk",
+	Name = "OrionTest.Button.SetDropdownIdk.Name",
 	Callback = function()
-        Dropdown:Set("idk")
+        Dropdown:Set("OrionTest.Dropdown.Option.Idk")
   	end    
 })
 Tab:AddToggle({
-    Name = "Toggle flag test",
+    Name = "OrionTest.Toggle.FlagTest.Name",
     Default = true,
     Save = true,
     Flag = "toggle"
 })
 Tab:AddButton({
-    Name = "Print toggle flag",
+    Name = "OrionTest.Button.PrintFlag.Name",
     Callback = function()
         print("toggle flag:",OrionLib.Flags["toggle"].Value)
     end
+})
+--Visible
+local VisibleLabel = Tab:AddLabel("OrionTest.Visible.Label.Default")
+local HiddenToggle = Tab:AddToggle({
+	Name = "OrionTest.Visible.HiddenDefault.Name",
+	Visible = false,
+	Default = false,
+	Callback = function(Value)
+		print(Value)
+	end
+})
+Tab:AddButton({
+	Name = "OrionTest.Button.HideLabel.Name",
+	Callback = function()
+		VisibleLabel:SetVisible(false)
+	end
+})
+Tab:AddButton({
+	Name = "OrionTest.Button.ShowLabel.Name",
+	Callback = function()
+		VisibleLabel:SetVisible(true)
+	end
+})
+Tab:AddToggle({
+	Name = "OrionTest.Visible.ToggleHidden.Name",
+	Default = false,
+	Callback = function(Value)
+		HiddenToggle:SetVisible(Value)
+	end
 })
